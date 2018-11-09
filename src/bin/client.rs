@@ -2,7 +2,7 @@ extern crate bytes;
 extern crate clap;
 
 use clap::{Arg, App};
-use std::net::TcpStream;
+use std::net::{Shutdown, TcpStream};
 use bytes::{BytesMut, BufMut};
 use std::io::Write;
 
@@ -39,7 +39,7 @@ fn main() {
 
         println!("Connected to the server!");
 
-        let n_bytes = 1_000_000_000;
+        let n_bytes = 1_000_000;
         let mut buf = BytesMut::with_capacity(n_bytes);
         for i in 0..n_bytes {
             buf.put_u8(1);
@@ -51,7 +51,7 @@ fn main() {
         println!("Bytes created, size: {}", buf.len());
 
         stream.write(&buf);
-
+        stream.shutdown(Shutdown::Both).expect("shutdown call failed");
     } else {
         println!("Couldn't connect to server...");
     }

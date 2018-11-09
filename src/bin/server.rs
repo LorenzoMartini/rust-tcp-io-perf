@@ -7,13 +7,9 @@ fn main() {
     for stream in listener.incoming() {
         let mut stream = stream.unwrap();
 
-        println!("Connection established!");
-        let mut active = true;
-        while active {
-            let mut buf =  Vec::new();
-            let recv = stream.read_to_end(&mut buf).unwrap();
-            println!("Read {} bytes", recv);
-            //active = false;
-        }
+        println!("Connection established with {:?}!", stream.peer_addr().unwrap());
+        let mut buf =  Vec::new();
+        let recv = stream.read_to_end(&mut buf).unwrap();
+        println!("Read {} bytes", recv);
     }
 }
