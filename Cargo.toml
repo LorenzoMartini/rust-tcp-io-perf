@@ -8,3 +8,4 @@ readme = "README.md"
 description = "A Rust program to shove data through TCP sockets:"
 
 [dependencies]
+bytes={version="*", features=["i128"]}
