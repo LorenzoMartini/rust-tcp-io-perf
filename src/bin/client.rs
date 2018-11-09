@@ -1,30 +1,57 @@
 extern crate bytes;
+extern crate clap;
+
+use clap::{Arg, App};
 use std::net::TcpStream;
-use std::net::SocketAddr;
 use bytes::{BytesMut, BufMut};
 use std::io::Write;
-use std::time::{SystemTime, UNIX_EPOCH};
+
+pub struct ClientConfig {
+    address: String,
+}
+
+pub fn parse_config() -> ClientConfig {
+    let matches = App::new("Client")
+        .arg(Arg::with_name("address")
+            .short("a")
+            .long("address")
+            .value_name("address")
+            .help("IP4 + port to connect to, like 127.0.0.1:8000")
+            .takes_value(true)
+            .default_value("127.0.0.1:7878")
+        )
+        .get_matches();
+
+    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    let address = matches.value_of("address").unwrap();
+    ClientConfig {
+        address: String::from(address),
+    }
+}
+
 
 fn main() {
 
-    if let Ok(mut stream) = TcpStream::connect("127.0.0.1:7878") {
+    let args = parse_config();
+    println!("N: {}", args.address);
+
+    if let Ok(mut stream) = TcpStream::connect(args.address) {
+
         println!("Connected to the server!");
-        let timesize_bytes= 16;
-        // 1.6GB
-        let n_bytes = 1600000000;
-        let n_slots = n_bytes / 16;
-        let cap = n_slots;
+
+        let n_bytes = 1_000_000_000;
         let mut buf = BytesMut::with_capacity(n_bytes);
-        for i in 0..n_slots {
-            buf.put_u128_be(1 as u128);
-            if i % (1000000) == 0 {
-                println!("Progress {}", i);
+        for i in 0..n_bytes {
+            buf.put_u8(1);
+            if i % (n_bytes / 100) == 0 {
+                println!("Progress: {} bytes loaded", i);
             }
         }
-//        let epoch_time = SystemTime::now().duration_since(UNIX_EPOCH)
-//            .expect("Time went backwards");
-//        buf.put_u128_be((epoch_time.as_secs() * 1000 + epoch_time.subsec_nanos() as u64 / 1_000_000) as u128);
+
+        println!("Bytes created, size: {}", buf.len());
+
         stream.write(&buf);
+
     } else {
         println!("Couldn't connect to server...");
     }

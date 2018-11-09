@@ -1,6 +1,6 @@
 [package]
 
-name = "tcp-ayce"
+name = "ayce"
 version = "0.0.0"
 authors = ["Lorenzo Martini <lmartini@student.ethz.ch>"]
 readme = "README.md"
@@ -8,4 +8,5 @@ readme = "README.md"
 description = "A Rust program to shove data through TCP sockets:"
 
 [dependencies]
-bytes={version="*", features=["i128"]}
+bytes = "*"
+clap = "2"
