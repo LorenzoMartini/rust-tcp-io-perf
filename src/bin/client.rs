@@ -8,6 +8,7 @@ use std::io::Write;
 
 pub struct ClientConfig {
     address: String,
+    n_kbytes: usize,
 }
 
 pub fn parse_config() -> ClientConfig {
@@ -20,12 +21,22 @@ pub fn parse_config() -> ClientConfig {
             .takes_value(true)
             .default_value("127.0.0.1:7878")
         )
+        .arg(Arg::with_name("n_kbytes")
+            .short("k")
+            .long("kbytes")
+            .value_name("n_kbytes")
+            .help("number of kbytes to transfer, must be a multiple of 100")
+            .takes_value(true)
+            .default_value("1000000")
+        )
         .get_matches();
 
     // Gets a value for config if supplied by user, or defaults to "default.conf"
     let address = matches.value_of("address").unwrap();
+    let n_kbytes = matches.value_of("n_kbytes").unwrap().parse::<usize>().unwrap();
     ClientConfig {
         address: String::from(address),
+        n_kbytes,
     }
 }
 
@@ -33,24 +44,30 @@ pub fn parse_config() -> ClientConfig {
 fn main() {
 
     let args = parse_config();
-    println!("N: {}", args.address);
 
+    println!("Connecting to the server {}...", args.address);
     if let Ok(mut stream) = TcpStream::connect(args.address) {
+        println!("Connection established!");
 
-        println!("Connected to the server!");
-
-        let n_bytes = 1_000_000;
-        let mut buf = BytesMut::with_capacity(n_bytes);
-        for i in 0..n_bytes {
+        // Create a buffer of 1/100 of desired dimension and then copy it multiple times to create
+        // a bigger buffer (optimization caveat)
+        let n_bytes = args.n_kbytes * 1000;
+        let mut buf = BytesMut::with_capacity(n_bytes / 100);
+        let mut final_buffer = BytesMut::with_capacity(n_bytes);
+        for i in 0..(n_bytes/100) {
             buf.put_u8(1);
-            if i % (n_bytes / 100) == 0 {
-                println!("Progress: {} bytes loaded", i);
+            if i % (n_bytes / 10000) == 0 {
+                println!("Progress: initial {} % kbytes loaded", i / (n_bytes / 10000));
             }
         }
+        for i in 0..100 {
+            final_buffer.put(buf.clone());
+        }
 
-        println!("Bytes created, size: {}", buf.len());
+        println!("Final bytes thing to send created, size: {}", final_buffer.len());
 
-        stream.write(&buf);
+        stream.write(&final_buffer);
+        
         stream.shutdown(Shutdown::Both).expect("shutdown call failed");
     } else {
         println!("Couldn't connect to server...");
