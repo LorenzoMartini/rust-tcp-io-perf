@@ -8,6 +8,7 @@ use std::io::Write;
 pub struct ClientConfig {
     address: String,
     n_kbytes: usize,
+    n_rounds: usize,
 }
 
 pub fn parse_config() -> ClientConfig {
@@ -28,14 +29,24 @@ pub fn parse_config() -> ClientConfig {
             .takes_value(true)
             .default_value("10000")
         )
+        .arg(Arg::with_name("rounds")
+            .short("r")
+            .long("rounds")
+            .value_name("rounds")
+            .help("number of rounds of transfer to perform")
+            .takes_value(true)
+            .default_value("100")
+        )
         .get_matches();
 
     // Gets a value for config if supplied by user, or defaults to "default.conf"
     let address = matches.value_of("address").unwrap();
     let n_kbytes = matches.value_of("n_kbytes").unwrap().parse::<usize>().unwrap();
+    let n_rounds = matches.value_of("rounds").unwrap().parse::<usize>().unwrap();
     ClientConfig {
         address: String::from(address),
         n_kbytes,
+        n_rounds
     }
 }
 
@@ -54,7 +65,7 @@ fn main() {
         let mut buf = vec![0; n_bytes];
 
         println!("Ready to send...");
-        for _i in 0..100 {
+        for _i in 0..args.n_rounds {
             stream.write(&buf);
         }
         println!("Sent everything!");
