@@ -44,23 +44,21 @@ fn main() {
     let args = parse_config();
     let listener = TcpListener::bind("0.0.0.0:".to_owned() + &args.port).unwrap();
 
-    for stream in listener.incoming() {
-        let mut stream = stream.unwrap();
+    let mut stream = listener.incoming().next().unwrap().unwrap();
 
-        println!("Connection established with {:?}!\nExpected {} kB",
-                 stream.peer_addr().unwrap(), args.n_kbytes);
-        let mut buf =  Vec::new();
-        let mut active = true;
-        while active {
-            let recv = stream.read_to_end(&mut buf).unwrap();
-            if recv > 0 {
-                println!("Read {} bytes", recv);
-            } else {
-                buf.clear();
-                active = false;
-            }
+    println!("Connection established with {:?}!\nExpected {} kB",
+             stream.peer_addr().unwrap(), args.n_kbytes);
+    let mut buf = vec![0; args.n_kbytes * 1000];
+    let mut active = true;
+    let mut tot = 0;
+    while active {
+        let recv = stream.read(&mut buf).unwrap();
+        if recv > 0 {
+            println!("Read {} bytes", recv);
+            tot += recv;
+        } else {
+            active = false;
         }
-        println!("Done reading");
-        return;
     }
+    println!("Done reading {} bytes", tot);
 }

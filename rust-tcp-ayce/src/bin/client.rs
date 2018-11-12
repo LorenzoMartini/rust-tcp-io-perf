@@ -3,7 +3,6 @@ extern crate clap;
 
 use clap::{Arg, App};
 use std::net::{Shutdown, TcpStream};
-use bytes::{BytesMut, BufMut};
 use std::io::Write;
 
 pub struct ClientConfig {
@@ -52,24 +51,13 @@ fn main() {
         // Create a buffer of 1/100 of desired dimension and then copy it multiple times to create
         // a bigger buffer (optimization caveat)
         let n_bytes = args.n_kbytes * 1000;
-        let mut buf = BytesMut::with_capacity(n_bytes / 100);
-        let mut final_buffer = BytesMut::with_capacity(n_bytes);
-        for i in 0..(n_bytes/100) {
-            buf.put_u8(1);
-            if i % (n_bytes / 10000) == 0 {
-                println!("Progress: initial {} % kbytes loaded", i / (n_bytes / 10000));
-            }
-        }
-        for i in 0..100 {
-            final_buffer.put(buf.clone());
-        }
+        let mut buf = vec![0; n_bytes];
 
-        println!("Final bytes thing to send created, size: {}", final_buffer.len());
-
-        for i in 0..10 {
-            stream.write(&final_buffer);
-            println!("x");
+        println!("Ready to send...");
+        for _i in 0..100 {
+            stream.write(&buf);
         }
+        println!("Sent everything!");
 
         stream.shutdown(Shutdown::Both).expect("shutdown call failed");
     } else {
