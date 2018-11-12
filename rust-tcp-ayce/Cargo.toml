@@ -1,6 +1,6 @@
 [package]
 
-name = "ayce"
+name = "rust-tcp-ayce"
 version = "0.0.0"
 authors = ["Lorenzo Martini <lmartini@student.ethz.ch>"]
 readme = "README.md"
