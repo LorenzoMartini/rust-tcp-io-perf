@@ -27,7 +27,7 @@ pub fn parse_config() -> ClientConfig {
             .value_name("n_kbytes")
             .help("number of kbytes to transfer, must be a multiple of 100")
             .takes_value(true)
-            .default_value("1000000")
+            .default_value("10000")
         )
         .get_matches();
 
@@ -66,8 +66,11 @@ fn main() {
 
         println!("Final bytes thing to send created, size: {}", final_buffer.len());
 
-        stream.write(&final_buffer);
-        
+        for i in 0..10 {
+            stream.write(&final_buffer);
+            println!("x");
+        }
+
         stream.shutdown(Shutdown::Both).expect("shutdown call failed");
     } else {
         println!("Couldn't connect to server...");
