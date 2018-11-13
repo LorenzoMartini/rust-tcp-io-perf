@@ -27,8 +27,8 @@ fn main() {
     let mut buf = vec![0; n_bytes];
     let mut active = true;
     let mut measurements = Vec::new();
+    let mut start = Instant::now();
     while active {
-        let start = Instant::now();
         let recv = stream.read(&mut buf).unwrap();
         if recv > 0 {
             let end = Instant::now();
@@ -36,7 +36,8 @@ fn main() {
                 start,
                 end,
                 n_bytes: recv,
-            })
+            });
+            start = end;
         } else {
             active = false;
         }
