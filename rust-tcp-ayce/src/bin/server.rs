@@ -1,9 +1,16 @@
 extern crate bytes;
 extern crate rust_tcp_ayce;
 
+use std::time::{Duration, Instant};
 use std::net::TcpListener;
 use std::io::Read;
 use rust_tcp_ayce::config;
+
+struct Measure {
+    start: Instant,
+    end: Instant,
+    n_bytes: usize,
+}
 
 fn main() {
     let args = config::parse_config();
@@ -16,15 +23,23 @@ fn main() {
              stream.peer_addr().unwrap(), n_bytes, args.n_rounds);
     let mut buf = vec![0; n_bytes];
     let mut active = true;
-    let mut tot = 0;
+    let mut measurements = Vec::new();
     while active {
+        let start = Instant::now();
         let recv = stream.read(&mut buf).unwrap();
         if recv > 0 {
-            println!("Read {} bytes", recv);
-            tot += recv;
+            let end = Instant::now();
+            measurements.push(Measure {
+                start,
+                end,
+                n_bytes: recv,
+            })
         } else {
             active = false;
         }
     }
-    println!("Done reading {} bytes", tot);
+    println!("Done reading, results in format <N_BYTES,TIME>:");
+    for entry in measurements {
+        println!("{},{:?}", entry.n_bytes, entry.end.duration_since(entry.start).as_millis());
+    }
 }
