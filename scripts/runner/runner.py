@@ -18,17 +18,19 @@ class Measurement:
     time_us = 0
 
     def __init__(self, oline):
-        parsed_line = oline.rstrip('[', ']', '\n').split(',')
+        parsed_line = oline.rstrip('\n').replace('[', '').replace(']', '').split(',')
         self.n_bytes = int(parsed_line[0])
-        self.time_us = int(parsed_line[2])
+        self.time_us = int(parsed_line[2].replace('us', ''))
 
 
+# Returns list of measurments from program stdout
 def create_measurements_list(output):
     measurements = []
     for line in output:
         if line[0] == '[':
             measurements.append(Measurement(line))
     return measurements
+
 
 # Compiles given program and creates executable
 def cargo_compile(ssh, compiling_command):
