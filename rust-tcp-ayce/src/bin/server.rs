@@ -40,6 +40,6 @@ fn main() {
     }
     println!("Done reading, results in format <N_BYTES,TIME>:");
     for entry in measurements {
-        println!("{},{:?}", entry.n_bytes, entry.end.duration_since(entry.start).as_millis());
+        println!("{},{:?}", entry.n_bytes, entry.end.duration_since(entry.start));
     }
 }

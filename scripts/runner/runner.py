@@ -29,8 +29,8 @@ def cargo_compile(ssh, compiling_command):
 
 # Compile the executables on server and client
 def compile_source(server, client):
-    cargo_compile(server, CONST_SERVER_COMPILE)
-    cargo_compile(client, CONST_CLIENT_COMPILE)
+    if cargo_compile(server, CONST_SERVER_COMPILE) != 0 or cargo_compile(client, CONST_CLIENT_COMPILE):
+        return -1
 
 
 # Connects client host to given server with name derived from command line args (or default) and given id
@@ -69,7 +69,9 @@ def main():
 
     try:
         server, client = connect_remote()
-        compile_source(server, client)
+        if compile_source(server, client) != 0:
+            print("Compiling error")
+            return
         for line in run_remote(server, client):
             print(line)
 
