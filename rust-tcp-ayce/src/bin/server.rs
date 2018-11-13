@@ -1,7 +1,7 @@
 extern crate bytes;
 extern crate rust_tcp_ayce;
 
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use std::net::TcpListener;
 use std::io::Read;
 use rust_tcp_ayce::config;
@@ -38,7 +38,7 @@ fn main() {
             active = false;
         }
     }
-    
+
     // Print out vec of measurements, print both precise time and time in us
     println!("Done reading, results in format <N_BYTES,TIME,TIME_IN_US>:");
     for entry in measurements {

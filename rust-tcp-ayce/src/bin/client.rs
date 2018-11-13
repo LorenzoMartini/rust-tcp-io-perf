@@ -21,7 +21,10 @@ fn main() {
 
         println!("Ready to send...");
         for _i in 0..n_rounds {
-            stream.write(&buf);
+            match stream.write(&buf) {
+                Ok(_n) => {},
+                Err(err) => panic!("crazy stuff happened while sending {}", err),
+            }
         }
         println!("Sent everything!");
 
