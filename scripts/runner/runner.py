@@ -7,8 +7,8 @@ CONST_USERNAME = "lmartini"
 CONST_KEY_FILENAME = "/home/lorenzo/.ssh/euler0x-key"
 CONST_SERVER_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release"
 CONST_CLIENT_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release"
-CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/server -k 1"
-CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/client -a euler02 -k 1"
+CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/release/server -k 100000"
+CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/release/client -a euler01 -k 100000"
 
 
 # Compiles given program and creates executable
@@ -59,6 +59,8 @@ def run_remote(server, client):
     _, cout, cerr = client.exec_command(CONST_RUN_CLIENT)
     _ = sout.channel.recv_exit_status()
     _ = cout.channel.recv_exit_status()
+    for line in serr:
+        print(line)
     return sout
 
 
