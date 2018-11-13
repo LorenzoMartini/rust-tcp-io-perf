@@ -31,6 +31,7 @@ def cargo_compile(ssh, compiling_command):
 def compile_source(server, client):
     if cargo_compile(server, CONST_SERVER_COMPILE) != 0 or cargo_compile(client, CONST_CLIENT_COMPILE):
         return -1
+    return 0
 
 
 # Connects client host to given server with name derived from command line args (or default) and given id

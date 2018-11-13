@@ -38,8 +38,12 @@ fn main() {
             active = false;
         }
     }
-    println!("Done reading, results in format <N_BYTES,TIME>:");
+    
+    // Print out vec of measurements, print both precise time and time in us
+    println!("Done reading, results in format <N_BYTES,TIME,TIME_IN_US>:");
     for entry in measurements {
-        println!("{},{:?}", entry.n_bytes, entry.end.duration_since(entry.start));
+        let duration = entry.end.duration_since(entry.start);
+        println!("{},{:?},{}µs", entry.n_bytes, duration,
+                 duration.as_secs() * 1_000_000u64 + duration.subsec_micros() as u64);
     }
 }
