@@ -111,9 +111,9 @@ def run(server_address, client_address):
     output = None
     try:
         server, client = connect_remote(server_address, client_address)
-        if compile_source(server, client) != 0:
-            print("Compiling error")
-            return
+        # if compile_source(server, client) != 0:
+        #     print("Compiling error")
+        #     return
         time.sleep(2)
         output = run_remote(server, client)
     finally:
