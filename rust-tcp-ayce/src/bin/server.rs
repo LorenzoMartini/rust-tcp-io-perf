@@ -15,6 +15,9 @@ struct Measure {
 fn main() {
     let args = config::parse_config();
     let n_bytes = args.n_kbytes * 1000;
+    if n_bytes >= 1_000_000_000 {
+        panic!("OMG 1GB? this is probably too much data you wanna send")
+    }
     let listener = TcpListener::bind("0.0.0.0:".to_owned() + &args.port).unwrap();
 
     let mut stream = listener.incoming().next().unwrap().unwrap();

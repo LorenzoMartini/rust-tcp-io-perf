@@ -1,4 +1,5 @@
 import paramiko
+import plotter
 
 CONST_SERVER_ADDRESS = "euler01"
 CONST_CLIENT_ADDRESS = "euler02"
@@ -27,6 +28,8 @@ class Measurement:
 def create_measurements_list(output):
     measurements = []
     for line in output:
+        # Debug output
+        print(line)
         if line[0] == '[':
             measurements.append(Measurement(line))
     return measurements
@@ -96,8 +99,10 @@ def main():
             return
         output = run_remote(server, client)
     finally:
-        server.close()
-        client.close()
+        if server:
+            server.close()
+        if client:
+            client.close()
 
     if not output:
         print("No Output... Weird")
@@ -105,8 +110,7 @@ def main():
 
     measurements = create_measurements_list(output)
 
-    for measurement in measurements:
-        print("{},{}us", measurement.n_bytes, measurement.time_us)
+    plotter.plot_measurements(measurements)
 
 
 if __name__ == "__main__":

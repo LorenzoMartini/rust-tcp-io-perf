@@ -12,6 +12,11 @@ fn main() {
     println!("Connecting to the server {}...", args.address);
     let n_rounds = args.n_rounds;
     let n_bytes = args.n_kbytes * 1000;
+
+    if n_bytes >= 1_000_000_000 {
+        panic!("OMG 1GB? this is probably too much data you wanna send")
+    }
+
     if let Ok(mut stream) = TcpStream::connect(args.address_and_port()) {
         println!("Connection established!");
 
