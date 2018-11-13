@@ -1,5 +1,6 @@
 import paramiko
 import plotter
+import time
 
 CONST_SERVER_ADDRESS = "euler01"
 CONST_CLIENT_ADDRESS = "euler02"
@@ -29,7 +30,6 @@ def create_measurements_list(output):
     measurements = []
     for line in output:
         # Debug output
-        print(line)
         if line[0] == '[':
             measurements.append(Measurement(line))
     return measurements
@@ -86,11 +86,11 @@ def setup_connection(machine_address):
 
 
 # Connect to remote machines to execute experiments
-def connect_remote():
+def connect_remote(server_address, client_address):
     # Connect to remote machines
     print('\nSetting up connection with servers...\n')
-    server = setup_connection(CONST_SERVER_ADDRESS)
-    client = setup_connection(CONST_CLIENT_ADDRESS)
+    server = setup_connection(server_address)
+    client = setup_connection(client_address)
     print('\nConnected to all the machines!')
     return server, client
 
@@ -106,14 +106,15 @@ def run_remote(server, client):
     return sout
 
 
-def main():
+def run(server_address, client_address):
     server, client = None, None
     output = None
     try:
-        server, client = connect_remote()
+        server, client = connect_remote(server_address, client_address)
         if compile_source(server, client) != 0:
             print("Compiling error")
             return
+        time.sleep(2)
         output = run_remote(server, client)
     finally:
         if server:
@@ -130,6 +131,10 @@ def main():
     plotter.plot_measurements(measurements)
 
     print_measurements_avg(measurements)
+
+
+def main():
+    run(CONST_SERVER_ADDRESS, CONST_CLIENT_ADDRESS)
 
 
 if __name__ == "__main__":
