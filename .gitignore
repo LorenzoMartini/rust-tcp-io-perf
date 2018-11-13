@@ -1,3 +1,5 @@
 *.idea
 *.lock
 /rust-tcp-ayce/target
+*.pyc
+*__pycache__
