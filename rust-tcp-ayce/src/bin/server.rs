@@ -43,7 +43,7 @@ fn main() {
     println!("Done reading, results in format <N_BYTES,TIME,TIME_IN_US>:");
     for entry in measurements {
         let duration = entry.end.duration_since(entry.start);
-        println!("{},{:?},{}µs", entry.n_bytes, duration,
+        println!("[{},{:?},{}µs]", entry.n_bytes, duration,
                  duration.as_secs() * 1_000_000u64 + duration.subsec_micros() as u64);
     }
 }

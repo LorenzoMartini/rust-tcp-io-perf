@@ -11,6 +11,25 @@ CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/release/server -k 10000
 CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/release/client -a euler01 -k 100000"
 
 
+# Represent a measurement line output by the server, containing number of bytes processed and time it took to process
+class Measurement:
+
+    n_bytes = 0
+    time_us = 0
+
+    def __init__(self, oline):
+        parsed_line = oline.rstrip('[', ']', '\n').split(',')
+        self.n_bytes = int(parsed_line[0])
+        self.time_us = int(parsed_line[2])
+
+
+def create_measurements_list(output):
+    measurements = []
+    for line in output:
+        if line[0] == '[':
+            measurements.append(Measurement(line))
+    return measurements
+
 # Compiles given program and creates executable
 def cargo_compile(ssh, compiling_command):
     print('Compiling executable...')
@@ -67,18 +86,25 @@ def run_remote(server, client):
 
 def main():
     server, client = None, None
-
+    output = None
     try:
         server, client = connect_remote()
         if compile_source(server, client) != 0:
             print("Compiling error")
             return
-        for line in run_remote(server, client):
-            print(line)
-
+        output = run_remote(server, client)
     finally:
         server.close()
         client.close()
+
+    if not output:
+        print("No Output... Weird")
+        return
+
+    measurements = create_measurements_list(output)
+
+    for measurement in measurements:
+        print("{},{}us", measurement.n_bytes, measurement.time_us)
 
 
 if __name__ == "__main__":
