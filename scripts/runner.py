@@ -1,6 +1,7 @@
 import paramiko
 import plotter
 import time
+import measurment
 
 CONST_SERVER_ADDRESS = "euler01"
 CONST_CLIENT_ADDRESS = "euler02"
@@ -11,45 +12,6 @@ CONST_SERVER_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayc
 CONST_CLIENT_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release"
 CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/release/server -k 100000"
 CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/release/client -a euler01 -k 100000"
-
-
-# Represent a measurement line output by the server, containing number of bytes processed and time it took to process
-class Measurement:
-
-    n_bytes = 0
-    time_us = 0
-
-    def __init__(self, oline):
-        parsed_line = oline.rstrip('\n').replace('[', '').replace(']', '').split(',')
-        self.n_bytes = int(parsed_line[0])
-        self.time_us = int(parsed_line[2].replace('us', ''))
-
-
-# Returns list of measurments from program stdout
-def create_measurements_list(output):
-    measurements = []
-    for line in output:
-        # Debug output
-        if line[0] == '[':
-            measurements.append(Measurement(line))
-    return measurements
-
-
-# Grabs a stable portion of the measurements and outputs the average
-def print_measurements_avg(measurements):
-    tot_len = len(measurements)
-    i = 0
-
-    # Compute integral in steady state
-    n_bytes = 0
-    time = 0
-    for measurement in measurements:
-        if (i > tot_len / 3) and ((i < tot_len * 2) / 3):
-            n_bytes += measurement.n_bytes
-            time += measurement.time_us
-        i += 1
-
-    print('AVG bandwidth use: ' + str(n_bytes / time) + 'MB/s')
 
 
 # Compiles given program and creates executable
@@ -126,11 +88,11 @@ def run(server_address, client_address):
         print("No Output... Weird")
         return
 
-    measurements = create_measurements_list(output)
+    measurements = measurment.create_measurements_list(output)
 
     plotter.plot_measurements(measurements)
 
-    print_measurements_avg(measurements)
+    measurment.print_measurements_avg(measurements)
 
 
 def main():

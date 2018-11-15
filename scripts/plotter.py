@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import measurment
+import sys
 
 
+# Plot given measurments samples
 def plot_measurements(measurements):
     x_axis = np.arange(0, len(measurements))
     gbs = []
@@ -15,3 +18,15 @@ def plot_measurements(measurements):
     plt.ylabel('MB/s')
     # plt.savefig('EffectiveBW.svg', format='svg')
     plt.show()
+
+
+def main():
+    measurement_file = sys.argv
+    with open(measurement_file, 'r') as ifile:
+        measurments = measurment.create_measurements_list(ifile.readlines())
+        plot_measurements(measurments)
+        measurment.print_measurements_avg(measurments)
+
+
+if __name__ == "__main__":
+    main()
