@@ -1,5 +1,6 @@
 # Helper to wrap utilities to parse measurments
 
+
 # Represent a measurement line output by the server, containing number of bytes processed and time it took to process
 class Measurement:
 

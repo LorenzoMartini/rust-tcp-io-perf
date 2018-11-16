@@ -21,7 +21,7 @@ def plot_measurements(measurements):
 
 
 def main():
-    measurement_file = sys.argv
+    measurement_file = sys.argv[1]
     with open(measurement_file, 'r') as ifile:
         measurments = measurment.create_measurements_list(ifile.readlines())
         plot_measurements(measurments)
