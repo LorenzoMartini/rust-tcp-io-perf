@@ -16,7 +16,6 @@ def plot_measurements(measurements):
     plt.title('Network effective bandwidth')
     plt.xlabel('Sample #')
     plt.ylabel('MB/s')
-    # plt.savefig('EffectiveBW.svg', format='svg')
     plt.show()
 
 

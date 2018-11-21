@@ -2,22 +2,58 @@ import paramiko
 import plotter
 import time
 import measurment
+import sys
 
-CONST_SERVER_ADDRESS = 'euler01'
-CONST_CLIENT_ADDRESS = 'euler02'
-CONST_PORT = '7878'
-CONST_USERNAME = 'lmartini'
-CONST_KEY_FILENAME = '/home/lorenzo/.ssh/euler0x-key'
+
 CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release'
 CONST_CLIENT_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release'
 CONST_RUN_SERVER = './rust-tcp-ayce/rust-tcp-ayce/target/release/server'
 CONST_RUN_CLIENT = './rust-tcp-ayce/rust-tcp-ayce/target/release/client'
-CONST_PLOT = '0'
-CONST_VERBOSE = '1'
+CONST_DEFAULT_CONFIG_FILE = './default_config.config'
 
 
+# Default configuration
+def default_config():
+    return {
+        'SERVER_ADDRESS': 'euler01',
+        'CLIENT_ADDRESS': 'euler02',
+        'KBYTES': '10000',
+        'ROUNDS': '10000',
+        'PORT': '7878',
+        'USERNAME': 'lmartini',
+        'KEY_FILENAME': '/home/lorenzo/.ssh/euler0x-key',
+        'PLOT': '0',
+        'VERBOSE': '1'
+    }
+
+
+# Read config file values into a dictionary and returns it
+def parse_config():
+    if len(sys.argv) < 2:
+        return default_config()
+
+    config = {}
+    with open(sys.argv[1], 'r') as ifile:
+        for line in ifile.readlines():
+            if line[0] == '#':
+                continue
+            split_line = line.rstrip('\n').split('=')
+            config[split_line[0]] = split_line[1]
+    return config
+
+
+CONFIG = parse_config()
+
+
+# Returns the command to run the client with the specified server
 def run_client_command(server_address):
-    return CONST_RUN_CLIENT + ' -a ' + server_address
+    return (CONST_RUN_CLIENT + ' -a ' + server_address + ' -p ' + CONFIG['PORT'] + ' -k ' + CONFIG['KBYTES'] +
+            ' -r ' + CONFIG['ROUNDS'])
+
+
+# Returns the command to run the server
+def run_server_command():
+    return CONST_RUN_SERVER
 
 
 # Print given stdout iterator and collects results in a list that is returned when the program completes
@@ -26,7 +62,7 @@ def print_and_collect_out(stdout, machine_id=''):
     out = []
     for line in stdout:
         lstrip = line.rstrip('\n')
-        if CONST_VERBOSE == '1':
+        if CONFIG['VERBOSE'] == '1':
             print(machine_id + ': ...' + lstrip)
         out.append(lstrip)
 
@@ -63,7 +99,7 @@ def setup_connection(machine_address):
     ssh = paramiko.SSHClient()
     ssh.load_system_host_keys()
     ssh.connect(machine_address,
-                username=CONST_USERNAME, key_filename=CONST_KEY_FILENAME)
+                username=CONFIG['USERNAME'], key_filename=CONFIG['KEY_FILENAME'])
     print('...Connected to ' + machine_address)
     return ssh
 
@@ -119,14 +155,14 @@ def run(server_address, client_address):
 
     measurements = measurment.create_measurements_list(output)
 
-    if CONST_PLOT == '1':
+    if CONFIG['PLOT'] == '1':
         plotter.plot_measurements(measurements)
 
     measurment.print_measurements_avg(measurements)
 
 
 def main():
-    run(CONST_SERVER_ADDRESS, CONST_CLIENT_ADDRESS)
+    run(CONFIG['SERVER_ADDRESS'], CONFIG['CLIENT_ADDRESS'])
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import runner
 from threading import Thread
 import time
 import measurment
+import plotter
 
 # Similar to runner, but runs benchmark both ways: have a sender and a receiver on each of the 2 machines and
 # test 2-way communication
@@ -9,8 +10,8 @@ import measurment
 
 # Run both servers and both clients and returns stdout of both
 def run_remote(server, client, server2, client2, server_address, server2_address):
-    _, sout, serr = server.exec_command(runner.CONST_RUN_SERVER)
-    _, sout2, serr2 = server2.exec_command(runner.CONST_RUN_SERVER)
+    _, sout, serr = server.exec_command(runner.run_server_command())
+    _, sout2, serr2 = server2.exec_command(runner.run_server_command())
     time.sleep(5)
     _, cout, cerr = client.exec_command(runner.run_client_command(server_address))
     _, cout2, cerr2 = client2.exec_command(runner.run_client_command(server2_address))
@@ -57,7 +58,7 @@ def run(server_address, client_address):
     measurements = measurment.create_measurements_list(output)
     measurements2 = measurment.create_measurements_list(output2)
 
-    if runner.CONST_PLOT == '1':
+    if runner.CONFIG['PLOT'] == '1':
         plotter.plot_measurements(measurements)
         plotter.plot_measurements(measurements2)
 
@@ -66,7 +67,7 @@ def run(server_address, client_address):
 
 
 def main():
-    run(runner.CONST_SERVER_ADDRESS, runner.CONST_CLIENT_ADDRESS)
+    run(runner.CONFIG['SERVER_ADDRESS'], runner.CONFIG['CLIENT_ADDRESS'])
 
 
 if __name__ == "__main__":
