@@ -12,8 +12,6 @@ def run_remote(server, client, server2, client2, server_address, server2_address
     time.sleep(5)
     _, cout, cerr = client.exec_command(runner.run_client_command(server_address))
     _, cout2, cerr2 = client2.exec_command(runner.run_client_command(server2_address))
-    out1 = []
-    out2 = []
 
     for line in cout:
         print('client1: ...' + line.rstrip('\n'))
@@ -24,15 +22,8 @@ def run_remote(server, client, server2, client2, server_address, server2_address
     _ = cout2.channel.recv_exit_status()
     print('clients finished!')
 
-    for line in sout:
-        l = line.rstrip('\n')
-        print('server1: ...' + l)
-        out1.append(l)
-    for line in sout2:
-        l = line.rstrip('\n')
-        print('server2: ...' + l)
-        out2.append(l)
-
+    out1 = runner.print_and_collect_out(sout, '1')
+    out2 = runner.print_and_collect_out(sout, '2')
     _ = sout.channel.recv_exit_status()
     _ = sout2.channel.recv_exit_status()
     print('servers finished')

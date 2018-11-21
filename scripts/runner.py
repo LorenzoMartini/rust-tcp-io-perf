@@ -3,20 +3,32 @@ import plotter
 import time
 import measurment
 
-CONST_SERVER_ADDRESS = "euler01"
-CONST_CLIENT_ADDRESS = "euler02"
-CONST_PORT = "7878"
-CONST_USERNAME = "lmartini"
-CONST_KEY_FILENAME = "/home/lorenzo/.ssh/euler0x-key"
-CONST_SERVER_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release"
-CONST_CLIENT_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release"
-CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/release/server"
-CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/release/client"
+CONST_SERVER_ADDRESS = 'euler01'
+CONST_CLIENT_ADDRESS = 'euler02'
+CONST_PORT = '7878'
+CONST_USERNAME = 'lmartini'
+CONST_KEY_FILENAME = '/home/lorenzo/.ssh/euler0x-key'
+CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release'
+CONST_CLIENT_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release'
+CONST_RUN_SERVER = './rust-tcp-ayce/rust-tcp-ayce/target/release/server'
+CONST_RUN_CLIENT = './rust-tcp-ayce/rust-tcp-ayce/target/release/client'
 CONST_PLOT = '0'
+CONST_VERBOSE = '1'
 
 
 def run_client_command(server_address):
     return CONST_RUN_CLIENT + ' -a ' + server_address
+
+
+def print_and_collect_out(sout, server_id=''):
+    # See output from server. Store out to analyze it and eventually plot it later
+    out = []
+    for line in sout:
+        lstrip = line.rstrip('\n')
+        if CONST_VERBOSE == '1':
+            print('server' + server_id + ': ...' + lstrip)
+        out.append(lstrip)
+    return out
 
 
 # Compiles given program and creates executable
@@ -67,7 +79,6 @@ def run_remote(server, client, server_address):
     _, sout, serr = server.exec_command(CONST_RUN_SERVER)
     time.sleep(5)
     _, cout, cerr = client.exec_command(run_client_command(server_address))
-    out = []
 
     # See output from client and make sure he's done
     for line in cout:
@@ -76,10 +87,7 @@ def run_remote(server, client, server_address):
     print('client finished')
 
     # See output from server and make sure he's done. Store out to analyze it and eventually plot it later
-    for line in sout:
-        l = line.rstrip('\n')
-        print('server: ...' + l)
-        out.append(l)
+    out = print_and_collect_out(sout)
     _ = sout.channel.recv_exit_status()
     print('server finished')
 
