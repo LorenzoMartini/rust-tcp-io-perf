@@ -22,7 +22,7 @@ fn main() {
 
     let mut stream = listener.incoming().next().unwrap().unwrap();
 
-    println!("Connection established with {:?}!\nExpected {} kB for {} rounds",
+    println!("Connection established with {:?}!\nExpected {} Bytes for {} rounds",
              stream.peer_addr().unwrap(), n_bytes, args.n_rounds);
     let mut buf = vec![0; n_bytes];
     let mut active = true;
@@ -44,10 +44,22 @@ fn main() {
     }
 
     // Print out vec of measurements, print both precise time and time in us
-    println!("Done reading, results in format <N_BYTES,TIME,TIME_IN_US>:");
-    for entry in measurements {
+    println!("Done reading, results in format [N_BYTES,TIME,APPROX_TIME_IN_US]:");
+    let mut tot_bytes: u64 = 0;
+    let mut tot_time: u64 = 0;
+    let len = measurements.len();
+
+    for i in 0..len {
+        let entry = &measurements[i];
         let duration = entry.end.duration_since(entry.start);
-        println!("[{},{:?},{}us]", entry.n_bytes, duration,
-                 duration.as_secs() * 1_000_000u64 + duration.subsec_micros() as u64);
+        let duration_us = duration.as_secs() * 1_000_000u64 + duration.subsec_micros() as u64;
+        println!("[{},{:?},{}us]", entry.n_bytes, duration, duration_us);
+
+        // Add measurement to compute bw
+        if i > len / 3 && i < (len * 2 / 3) {
+            tot_bytes += entry.n_bytes as u64;
+            tot_time += duration_us;
+        }
     }
+    println!("Available approximated bandwidth: {} MB/s", tot_bytes / tot_time)
 }

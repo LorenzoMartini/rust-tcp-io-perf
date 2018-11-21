@@ -13,8 +13,15 @@ fn main() {
     let n_rounds = args.n_rounds;
     let n_bytes = args.n_kbytes * 1000;
 
-    if n_bytes >= 1_000_000_000 {
-        panic!("OMG 1GB? this is probably too much data you wanna send")
+    // Don't kill machines
+    if n_bytes > 100_000_000 {
+        panic!("More than 100 MB per round? this is probably too much data you wanna send, \
+        you may kill one of the machines. Try with maybe 100MB but more rounds")
+    }
+
+    // Very improbable case error handling
+    if n_bytes as u128 * n_rounds as u128 > u64::max_value().into() {
+        panic!("There's gonna be too much data. Make sure n_bytes * n_rounds is < u128::MAX")
     }
 
     if let Ok(mut stream) = TcpStream::connect(args.address_and_port()) {
@@ -24,11 +31,16 @@ fn main() {
         // a bigger buffer (optimization caveat)
         let mut buf = vec![0; n_bytes];
 
+        let perc = n_rounds / 100;
+
         println!("Ready to send...");
-        for _i in 0..n_rounds {
+        for i in 0..n_rounds {
             match stream.write(&buf) {
                 Ok(_n) => {},
                 Err(err) => panic!("crazy stuff happened while sending {}", err),
+            }
+            if i % perc == 0 {
+                println!("{}% completed", i / perc);
             }
         }
         println!("Sent everything!");
