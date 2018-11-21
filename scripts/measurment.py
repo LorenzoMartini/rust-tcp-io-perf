@@ -24,7 +24,7 @@ def create_measurements_list(output):
 
 
 # Grabs a stable portion of the measurements and outputs the average
-def print_measurements_avg(measurements):
+def print_measurements_avg(measurements, machine_id=''):
     tot_len = len(measurements)
     i = 0
 
@@ -37,4 +37,4 @@ def print_measurements_avg(measurements):
             time += measurement.time_us
         i += 1
 
-    print('AVG bandwidth use: ' + str(n_bytes / time) + 'MB/s')
+    print((machine_id + ': ' if machine_id != '' else '') + 'AVG bandwidth use: ' + str(n_bytes / time) + 'MB/s')

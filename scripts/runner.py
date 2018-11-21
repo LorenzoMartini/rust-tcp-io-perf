@@ -20,14 +20,18 @@ def run_client_command(server_address):
     return CONST_RUN_CLIENT + ' -a ' + server_address
 
 
-def print_and_collect_out(sout, server_id=''):
+# Print given stdout iterator and collects results in a list that is returned when the program completes
+def print_and_collect_out(stdout, machine_id=''):
     # See output from server. Store out to analyze it and eventually plot it later
     out = []
-    for line in sout:
+    for line in stdout:
         lstrip = line.rstrip('\n')
         if CONST_VERBOSE == '1':
-            print('server' + server_id + ': ...' + lstrip)
+            print(machine_id + ': ...' + lstrip)
         out.append(lstrip)
+
+    _ = stdout.channel.recv_exit_status()
+    print(machine_id + ' finished')
     return out
 
 
@@ -81,15 +85,10 @@ def run_remote(server, client, server_address):
     _, cout, cerr = client.exec_command(run_client_command(server_address))
 
     # See output from client and make sure he's done
-    for line in cout:
-        print('client: ...' + line.rstrip('\n'))
-    _ = cout.channel.recv_exit_status()
-    print('client finished')
+    print_and_collect_out(cout, 'client')
 
     # See output from server and make sure he's done. Store out to analyze it and eventually plot it later
-    out = print_and_collect_out(sout)
-    _ = sout.channel.recv_exit_status()
-    print('server finished')
+    out = print_and_collect_out(sout, 'server')
 
     # Print err
     for line in serr:
@@ -98,6 +97,7 @@ def run_remote(server, client, server_address):
     return out
 
 
+# Does the job of connecting, compiling and analyzing output
 def run(server_address, client_address):
     server, client = None, None
     output = None

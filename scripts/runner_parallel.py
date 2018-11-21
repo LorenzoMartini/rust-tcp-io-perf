@@ -3,30 +3,23 @@ from threading import Thread
 import time
 import measurment
 
+# Similar to runner, but runs benchmark both ways: have a sender and a receiver on each of the 2 machines and
+# test 2-way communication
 
-# Run server and client and returns stdout of server
+
+# Run both servers and both clients and returns stdout of both
 def run_remote(server, client, server2, client2, server_address, server2_address):
-    print(server_address, server2_address)
     _, sout, serr = server.exec_command(runner.CONST_RUN_SERVER)
     _, sout2, serr2 = server2.exec_command(runner.CONST_RUN_SERVER)
     time.sleep(5)
     _, cout, cerr = client.exec_command(runner.run_client_command(server_address))
     _, cout2, cerr2 = client2.exec_command(runner.run_client_command(server2_address))
 
-    for line in cout:
-        print('client1: ...' + line.rstrip('\n'))
-    for line in cout2:
-        print('client2: ...' + line.rstrip('\n'))
+    runner.print_and_collect_out(cout, 'client1')
+    runner.print_and_collect_out(cout2, 'client2')
 
-    _ = cout.channel.recv_exit_status()
-    _ = cout2.channel.recv_exit_status()
-    print('clients finished!')
-
-    out1 = runner.print_and_collect_out(sout, '1')
-    out2 = runner.print_and_collect_out(sout, '2')
-    _ = sout.channel.recv_exit_status()
-    _ = sout2.channel.recv_exit_status()
-    print('servers finished')
+    out1 = runner.print_and_collect_out(sout, 'server1')
+    out2 = runner.print_and_collect_out(sout2, 'server2')
 
     for line in serr:
         print(line)
@@ -36,6 +29,7 @@ def run_remote(server, client, server2, client2, server_address, server2_address
     return out1, out2
 
 
+# Does the job of connecting, compiling and analyzing output
 def run(server_address, client_address):
     server, client = None, None
     output, output2 = None, None
@@ -67,8 +61,8 @@ def run(server_address, client_address):
         plotter.plot_measurements(measurements)
         plotter.plot_measurements(measurements2)
 
-    measurment.print_measurements_avg(measurements)
-    measurment.print_measurements_avg(measurements2)
+    measurment.print_measurements_avg(measurements, 'server1')
+    measurment.print_measurements_avg(measurements2, 'server2')
 
 
 def main():
