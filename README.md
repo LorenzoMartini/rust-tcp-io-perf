@@ -24,9 +24,17 @@ If you want to test the two-way communication, then setup 2 servers and then run
 ### Running via scripts
 
 I have provided scripts to run the benchmarks automatically.
+For these scripts you will need to edit the configuration file. Change values in `default_config.config` or create a config file in the same format with the same keys and change values
 
-#### runner.py
-This scripts will run the benchmark remotely with a client and a server
+The config file is important because it will contain a bunch of things like machines names, ssh keys, username to use for the ssh, etc.
 
-#### runner_bidirectional.py
-This scripts will run the benchmark remotely with 2 clients and 2 servers (a client and a server on each of the 2 machines) in order to test bidirectional communication.
+#### Prerequisites
+- Make sure you can ssh into the machines you wanna use for your benchmark
+- Make sure you have set up the ssh connections correctly and have the machines in your known host and have the ssh keys somewhere in your pc (or the machine you will start the script from).
+
+#### Instructions
+For both scripts, run: `python <program> <config_file_location>`.
+
+##### Scripts
+- <strong>runner.py</strong>: This script will run the benchmark remotely with a client and a server
+- <strong>runner_bidirectional.py</strong>: This script will run the benchmark remotely with 2 clients and 2 servers (a client and a server on each of the 2 machines) in order to test bidirectional communication.
