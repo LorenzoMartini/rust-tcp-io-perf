@@ -1,8 +1,11 @@
 import paramiko
 import plotter
 import time
-import measurment
+import measurement
 import sys
+
+# Run python runner.py <config_file_path> to execute. Config file must be like 'default_config.config'
+# It's important to include the appropriate ssh keys to be able to run ssh correctly.
 
 
 CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release'
@@ -150,15 +153,15 @@ def run(server_address, client_address):
             client.close()
 
     if not output:
-        print("No Output... Weird")
+        print("No Output... Something went wrong")
         return
 
-    measurements = measurment.create_measurements_list(output)
+    measurements = measurement.create_measurements_list(output)
 
     if CONFIG['PLOT'] == '1':
         plotter.plot_measurements(measurements)
 
-    measurment.print_measurements_avg(measurements)
+    measurement.print_measurements_avg(measurements)
 
 
 def main():

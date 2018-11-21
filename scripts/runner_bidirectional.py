@@ -1,8 +1,11 @@
 import runner
 from threading import Thread
 import time
-import measurment
+import measurement
 import plotter
+
+# Run python runner_bidirectional.py <config_file_path> to execute. Config file must be like 'default_config.config'
+# It's important to include the appropriate ssh keys to be able to run ssh correctly.
 
 # Similar to runner, but runs benchmark both ways: have a sender and a receiver on each of the 2 machines and
 # test 2-way communication
@@ -49,21 +52,21 @@ def run(server_address, client_address):
             client.close()
 
     if not output:
-        print("No Output... Weird")
+        print("No Output... Something went wrong")
         return
     if not output2:
-        print("No Output2... Weird")
+        print("No Output2... Something went wrong")
         return
 
-    measurements = measurment.create_measurements_list(output)
-    measurements2 = measurment.create_measurements_list(output2)
+    measurements = measurement.create_measurements_list(output)
+    measurements2 = measurement.create_measurements_list(output2)
 
     if runner.CONFIG['PLOT'] == '1':
         plotter.plot_measurements(measurements)
         plotter.plot_measurements(measurements2)
 
-    measurment.print_measurements_avg(measurements, 'server1')
-    measurment.print_measurements_avg(measurements2, 'server2')
+    measurement.print_measurements_avg(measurements, 'server1')
+    measurement.print_measurements_avg(measurements2, 'server2')
 
 
 def main():

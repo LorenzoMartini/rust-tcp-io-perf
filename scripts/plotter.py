@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import measurment
+import measurement
 import sys
 
+# Run python plotter.py <results_file> where results file is the output of server.rs.
+# Shows sampled values and computes bandwidth
 
 # Plot given measurments samples
 def plot_measurements(measurements):
@@ -22,9 +24,9 @@ def plot_measurements(measurements):
 def main():
     measurement_file = sys.argv[1]
     with open(measurement_file, 'r') as ifile:
-        measurments = measurment.create_measurements_list(ifile.readlines())
+        measurments = measurement.create_measurements_list(ifile.readlines())
         plot_measurements(measurments)
-        measurment.print_measurements_avg(measurments)
+        measurement.print_measurements_avg(measurments)
 
 
 if __name__ == "__main__":
