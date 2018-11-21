@@ -10,8 +10,13 @@ CONST_USERNAME = "lmartini"
 CONST_KEY_FILENAME = "/home/lorenzo/.ssh/euler0x-key"
 CONST_SERVER_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release"
 CONST_CLIENT_COMPILE = "source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release"
-CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/release/server -k 100000"
-CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/release/client -a euler01 -k 100000"
+CONST_RUN_SERVER = "./rust-tcp-ayce/rust-tcp-ayce/target/release/server"
+CONST_RUN_CLIENT = "./rust-tcp-ayce/rust-tcp-ayce/target/release/client"
+CONST_PLOT = '0'
+
+
+def run_client_command(server_address):
+    return CONST_RUN_CLIENT + ' -a ' + server_address
 
 
 # Compiles given program and creates executable
@@ -57,15 +62,32 @@ def connect_remote(server_address, client_address):
     return server, client
 
 
-# Run server and client and returns somthing TODO{@lmartini}
-def run_remote(server, client):
+# Run server and client and returns stdout of server
+def run_remote(server, client, server_address):
     _, sout, serr = server.exec_command(CONST_RUN_SERVER)
-    _, cout, cerr = client.exec_command(CONST_RUN_CLIENT)
-    _ = sout.channel.recv_exit_status()
+    time.sleep(5)
+    _, cout, cerr = client.exec_command(run_client_command(server_address))
+    out = []
+
+    # See output from client and make sure he's done
+    for line in cout:
+        print('client: ...' + line.rstrip('\n'))
     _ = cout.channel.recv_exit_status()
+    print('client finished')
+
+    # See output from server and make sure he's done. Store out to analyze it and eventually plot it later
+    for line in sout:
+        l = line.rstrip('\n')
+        print('server: ...' + l)
+        out.append(l)
+    _ = sout.channel.recv_exit_status()
+    print('server finished')
+
+    # Print err
     for line in serr:
-        print(line)
-    return sout
+        print('Server ERR: ' + line)
+
+    return out
 
 
 def run(server_address, client_address):
@@ -73,11 +95,10 @@ def run(server_address, client_address):
     output = None
     try:
         server, client = connect_remote(server_address, client_address)
-        # if compile_source(server, client) != 0:
-        #     print("Compiling error")
-        #     return
-        time.sleep(2)
-        output = run_remote(server, client)
+        if compile_source(server, client) != 0:
+            print("Compiling error")
+            return
+        output = run_remote(server, client, server_address)
     finally:
         if server:
             server.close()
@@ -90,7 +111,8 @@ def run(server_address, client_address):
 
     measurements = measurment.create_measurements_list(output)
 
-    plotter.plot_measurements(measurements)
+    if CONST_PLOT == '1':
+        plotter.plot_measurements(measurements)
 
     measurment.print_measurements_avg(measurements)
 
