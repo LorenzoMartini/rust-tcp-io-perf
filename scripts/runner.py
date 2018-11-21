@@ -64,6 +64,7 @@ def print_and_collect_out(stdout, machine_id=''):
     # See output from server. Store out to analyze it and eventually plot it later
     out = []
     for line in stdout:
+        # This is necessary because for some awkward reason if std is not consumed it gets blocked
         lstrip = line.rstrip('\n')
         if CONFIG['VERBOSE'] == '1':
             print(machine_id + ': ...' + lstrip)
