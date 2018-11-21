@@ -27,7 +27,7 @@ pub fn parse_config() -> Config {
             .short("p")
             .long("port")
             .value_name("port")
-            .help("port to connect to, like 127.0.0.1:8000")
+            .help("port to connect to, like port 7878 if you wanna connect to 127.0.0.1:7878")
             .takes_value(true)
             .default_value("7878")
         )
