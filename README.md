@@ -1,5 +1,9 @@
 # rust-tcp-ayce
-Send big stuff over the network with Rust tcp sockets
+
+The purpose of this is to benchmark how much bandwidth we effectively have available on a communication channel.
+To test that, we run a server and a client at the two ends of the channel, and start sending big quantities of data from one end to the other. On the server side we can then measure how much data we have received in how much time and derive an approximation of the bandwidth.
+
+We take TCP sockets and Rust to benchmark this (only measuring during stable state).
 
 ## Instructions
 
@@ -8,16 +12,19 @@ Send big stuff over the network with Rust tcp sockets
 - Have Rust and Cargo correctly installed on your machine
 #### Instructions
 
+1) Run server
 - Go on the machine where you wanna launch the server (or ssh into it)
 - Open a terminal
 - `cd` into the inner `rust-tcp-ayce` folder
 - Run `cargo run --bin server --release` (or compile and run, meaning `cargo build --bin server --release` and once compiled `./target/release/server`. You can specify the port you wanna listen on with `-p <port_number>`
 
-
+2) Run client
 - Go on the machine where you wanna launch the client (or ssh into it)
 - Open a terminal
 - `cd` into the inner `rust-tcp-ayce` folder
-- Run `cargo run --bin client --release` (or compile and run, meaning `cargo build --bin client --release` and once compiled `./target/release/client`. You can specify a bunch of parameters. Run the program with the `-h` option to see available params
+- Run `cargo run --bin client --release` (or compile and run, meaning `cargo build --bin client --release` and once compiled `./target/release/client`. You can specify a bunch of parameters. Run the program with the `-h` option to see available params. Make sure you specify the right address and port to connect to the server, using parameters `-a <address> -p <port>`.
+
+You should see the client tracking progress, and when he's done you should see the server printing all the rounds of data in format [n_bytes,time,time_us], followed by a summary with the bandwidth information.
 
 If you want to test the two-way communication, then setup 2 servers and then run the 2 clients together.
 
