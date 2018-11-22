@@ -46,7 +46,7 @@ For both scripts, run: `python <program> <config_file_location>`.
 - <strong>runner.py</strong>: This script will run the benchmark remotely with a client and a server
 - <strong>runner_bidirectional.py</strong>: This script will run the benchmark remotely with 2 clients and 2 servers (a client and a server on each of the 2 machines) in order to test bidirectional communication.
 
-If in your config file you specify PLOT=1 you will also see a summary plot of the samples. See the <strong>Visualizing results<\strong> chapter for details.
+If in your config file you specify PLOT=1 you will also see a summary plot of the samples. See the <strong>Visualizing results</strong> chapter for details.
 
 ### Visualizing results
 
@@ -55,7 +55,7 @@ If in your config file you specify PLOT=1 you will also see a summary plot of th
 
 #### Description
 
-There is an additional runnable tool which is <string>plotter.py<\strong>. It takes the output of server.rs as input and produces a plot of the bandwidth of single samples. This is not very reliable usually, especially when testing two-way communications, given that we may see higher spikes only because we had more stuff waiting to be processed in our server than what was effectively sent in that time frame.
+There is an additional runnable tool which is <string>plotter.py</strong>. It takes the output of server.rs as input and produces a plot of the bandwidth of single samples. This is not very reliable usually, especially when testing two-way communications, given that we may see higher spikes only because we had more stuff waiting to be processed in our server than what was effectively sent in that time frame.
   
 #### Instructions
 - `python plotter.py <file_with_server.rs_output>.`
