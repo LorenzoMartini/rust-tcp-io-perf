@@ -1,5 +1,6 @@
 extern crate bytes;
 extern crate rust_tcp_bw;
+extern crate streaming_harness_hdrhist;
 
 use std::time::Instant;
 use std::net::TcpListener;
@@ -48,7 +49,7 @@ fn main() {
     let mut tot_bytes: u64 = 0;
     let mut tot_time: u64 = 0;
     let len = measurements.len();
-
+    let mut hist = streaming_harness_hdrhist::HDRHist::new();
     for i in 0..len {
         let entry = &measurements[i];
         let duration = entry.end.duration_since(entry.start);
@@ -60,6 +61,9 @@ fn main() {
             tot_bytes += entry.n_bytes as u64;
             tot_time += duration_us;
         }
+        hist.add_value(duration_us);
     }
+    println!("HDRHIST summary:\nsummary {:#?}\nsummary_string\n{}",
+             hist.summary().collect::<Vec<_>>(), hist.summary_string());
     println!("Available approximated bandwidth: {} MB/s", tot_bytes / tot_time)
 }
