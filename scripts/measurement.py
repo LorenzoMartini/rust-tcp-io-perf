@@ -25,6 +25,7 @@ def create_measurements_list(output):
     return measurements
 
 
+# TODO to be removed in exchange for a summary in rust
 # Grabs a stable portion of the measurements and outputs a summary
 def print_measurements_summary(measurements, program, machine_id=''):
 
