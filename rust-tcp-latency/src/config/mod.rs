@@ -37,7 +37,7 @@ pub fn parse_config() -> Config {
             .value_name("n_kbytes")
             .help("number of kbytes to transfer, must be a multiple of 100")
             .takes_value(true)
-            .default_value("10")
+            .default_value("1")
         )
         .arg(Arg::with_name("rounds")
             .short("r")
