@@ -14,7 +14,7 @@ class Measurement:
         self.time_us = int(parsed_line[2].replace('us', ''))
 
 
-# Returns list of measurments from program stdout
+# Returns list of measurements from program stdout
 def create_measurements_list(output):
     measurements = []
     for line in output:

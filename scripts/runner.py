@@ -55,13 +55,17 @@ def parse_command(command):
 
 # Returns the command to run the client with the specified server
 def run_client_command(server_address):
-    return (parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address + ' -p ' + CONFIG['PORT'] +
-            ' -k ' + CONFIG['KBYTES'] + ' -r ' + CONFIG['ROUNDS'])
+    return parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address + args()
 
 
 # Returns the command to run the server
 def run_server_command():
-    return parse_command(CONST_RUN_SERVER)
+    return parse_command(CONST_RUN_SERVER) + args()
+
+
+# Pack args in command line
+def args():
+    return ' -p ' + CONFIG['PORT'] + ' -k ' + CONFIG['KBYTES'] + ' -r ' + CONFIG['ROUNDS']
 
 
 # Print given stdout iterator and collects results in a list that is returned when the program completes
@@ -124,10 +128,9 @@ def connect_remote(server_address, client_address):
     return server, client
 
 
-# TODO OR CLIENT
 # Run server and client and returns stdout of server if rust-tcp-bw or client if rust-tcp-latency
 def run_remote(server, client, server_address):
-    _, sout, serr = server.exec_command(parse_command(CONST_RUN_SERVER))
+    _, sout, serr = server.exec_command(run_server_command())
     time.sleep(5)
     _, cout, cerr = client.exec_command(run_client_command(server_address))
 

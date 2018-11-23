@@ -48,7 +48,8 @@ fn main() {
         stream.shutdown(Shutdown::Both).expect("shutdown call failed");
 
         for measure in measurements {
-            println!("{:?}, {}us", measure, measure.as_secs() * 1_000_000u64 + measure.subsec_micros() as u64);
+            println!("[{},{:?},{}us]", n_bytes, measure,
+                     measure.as_secs() * 1_000_000u64 + measure.subsec_micros() as u64);
         }
     } else {
         println!("Couldn't connect to server...");
