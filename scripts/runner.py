@@ -170,8 +170,6 @@ def run(server_address, client_address):
     if CONFIG['PLOT'] == '1':
         plotter.plot_measurements(measurements, CONFIG['PROGRAM'])
 
-    measurement.print_measurements_summary(measurements, program=CONFIG['PROGRAM'])
-
 
 def main():
     run(CONFIG['SERVER_ADDRESS'], CONFIG['CLIENT_ADDRESS'])

@@ -7,7 +7,8 @@ import plotter
 # It's important to include the appropriate ssh keys to be able to run ssh correctly.
 
 # Similar to runner, but runs benchmark both ways: have a sender and a receiver on each of the 2 machines and
-# test 2-way communication
+# test 2-way communication.
+# Note this makes sense only if PROGRAM=rust-tcp-bw
 
 
 # Run both servers and both clients and returns stdout of both
@@ -64,11 +65,11 @@ def run(server_address, client_address):
         plotter.plot_measurements(measurements, runner.CONFIG['PROGRAM'])
         plotter.plot_measurements(measurements2, runner.CONFIG['PROGRAM'])
 
-    measurement.print_measurements_summary(measurements, runner.CONFIG['PROGRAM'], 'server1')
-    measurement.print_measurements_summary(measurements2, runner.CONFIG['PROGRAM'], 'server2')
-
 
 def main():
+    if runner.CONFIG['PROGRAM'] != 'rust-tcp-bw':
+        print('This script works only for rust-tcp-bw')
+        exit(-1)
     run(runner.CONFIG['SERVER_ADDRESS'], runner.CONFIG['CLIENT_ADDRESS'])
 
 
