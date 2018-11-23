@@ -1,3 +1,4 @@
+import numpy as np
 # Helper to wrap utilities to parse measurments
 
 
@@ -24,19 +25,34 @@ def create_measurements_list(output):
     return measurements
 
 
-# TODO and latency
-# Grabs a stable portion of the measurements and outputs the average
+# Grabs a stable portion of the measurements and outputs a summary
 def print_measurements_summary(measurements, program, machine_id=''):
+
     tot_len = len(measurements)
     i = 0
 
-    # Compute integral in steady state
-    n_bytes = 0
-    time = 0
-    for measurement in measurements:
-        if (i > (tot_len / 3)) and (i < (tot_len * 2 / 3)):
-            n_bytes += measurement.n_bytes
-            time += measurement.time_us
-        i += 1
+    if program == 'rust-tcp-bw':
+        # Compute integral in steady state
+        n_bytes = 0
+        time = 0
+        for measurement in measurements:
+            if (i > (tot_len / 3)) and (i < (tot_len * 2 / 3)):
+                n_bytes += measurement.n_bytes
+                time += measurement.time_us
+            i += 1
 
-    print((machine_id + ': ' if machine_id != '' else '') + 'AVG bandwidth use: ' + str(n_bytes / time) + 'MB/s')
+        print((machine_id + ': ' if machine_id != '' else '') + 'Estimated available bandwidth : ' +
+              str(n_bytes / time) + 'MB/s')
+
+    else:
+        times_us = []
+        for measurement in measurements:
+            times_us.append(measurement.time_us)
+
+        print('Roundtrip numbers:\nP99: {}us\nP95: {}us\nP75: {}us\nP50: {}us\nP25: {}us'.format(
+            np.percentile(times_us, 99),
+            np.percentile(times_us, 95),
+            np.percentile(times_us, 75),
+            np.percentile(times_us, 50),
+            np.percentile(times_us, 25)
+        ))
