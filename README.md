@@ -71,7 +71,7 @@ If in your config file you specify PLOT=1 you will also see a summary plot of th
 
 #### Description
 
-There is an additional runnable tool which is <string>plotter.py</strong>. It takes the output of our .rs program as input and produces a plot of bandwidth\latency of single samples and CDF.
+There is an additional runnable tool which is <string>plotter.py</strong>. It takes the output of our .rs program as input and produces a plot of bandwidth\latency CDF.
 
 ...Note: This is not very reliable for bandwidth usually, especially when testing two-way communications, given that we may see higher spikes only because we had more stuff waiting to be processed in our server than what was effectively sent in that time frame.
   
@@ -82,3 +82,5 @@ There is an additional runnable tool which is <string>plotter.py</strong>. It ta
 Get the file you need by simply redirecting to a file the output of:
 - `server.rs` for `rust-tcp-bw`
 - `client.rs` for `rust-tcp-latency`
+
+Alternatively, run you `runner.py` scripts normally, but change the config value of PLOT to `PLOT=1`
