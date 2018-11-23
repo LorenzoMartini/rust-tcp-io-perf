@@ -1,17 +1,30 @@
 # rust-tcp-io-perf
 
-This repo contains programs to benchmark how much bandwidth we effectively have available on a communication channel.
-To test that, we run a server and a client at the two ends of the channel, and start sending big quantities of data from one end to the other. On the server side we can then measure how much data we have received in how much time and derive an approximation of the bandwidth.
+This repo contains programs to benchmark how much bandwidth we effectively have available on a communication channel and what's the latency on that channel.
 
-We use TCP sockets and Rust to benchmark this (only measuring during stable state).
+We use TCP sockets and Rust to benchmark thiese.
 
 # Bandwidth measure
 
+We measure the effective bandwidth available on a communication channel.
+
+We run a server and a client at the two ends of the channel, and start sending big quantities of data from one end to the other. On the server side we can then measure (only in stable state) how much data we have received in how much time and derive an approximation of the bandwidth.
+
+# Latency measure
+
+We measure the latency between the two machines at the end of a communication channel.
+
+We run a server and a client at the two ends of the channel, and start sending data from one end to the other and back. On the client side we can then measure the roundtrip time of every message sent and derive latency info.
+
 ## Instructions
 
+For both programs, you can run them the same way. We will use `rust-tcp-bw` as example. To run `rust-tcp-latency` just replace `rust-tcp-bw` with `rust-tcp-latency` whenever it appears in the instructions.
+
 ### Running .rs directly
+
 #### Prerequisites
 - Have Rust and Cargo correctly installed on your machine
+
 #### Instructions
 
 1) Run server
@@ -26,23 +39,24 @@ We use TCP sockets and Rust to benchmark this (only measuring during stable stat
 - `cd` into the inner `rust-tcp-bw` folder
 - Run `cargo run --bin client --release` (or compile and run, meaning `cargo build --bin client --release` and once compiled `./target/release/client`. You can specify a bunch of parameters. Run the program with the `-h` option to see available params. Make sure you specify the right address and port to connect to the server, using parameters `-a <address> -p <port>`.
 
-You should see the client tracking progress, and when he's done you should see the server printing all the rounds of data in format [n_bytes,time,time_us], followed by a summary with the bandwidth information.
+You should see the client tracking progress, and when he's done you should see the server printing all the rounds of data in format `[n_bytes,time,time_us]`, followed by a summary with the bandwidth information.
 
 If you want to test the two-way communication, then setup 2 servers and then run the 2 clients together.
 
 ### Running via scripts
 
 I have provided scripts to run the benchmarks automatically, <strong>runner.py</strong> and <strong>runner_bidirectional.py</strong>.
-For these scripts you will need to edit the configuration file. Change values in `default_config.config` or create a config file in the same format with the same keys and change values
+For these scripts you will need to edit the configuration file. Change values in `default_config.config` or create a config file in the same format with the same keys and change values. You can specify the program to test (whether `rust-tcp-bw` or `rust-tcp-latency`) in your config file.
 
-The config file is important because it will contain a bunch of things like machines names, ssh keys, username to use for the ssh, etc.
+The config file is important because it will contain a bunch of things like machines names, ssh keys, username to use for the ssh, that will be necessary to run your programs.
 
 #### Prerequisites
+
 - Make sure you can ssh into the machines you wanna use for your benchmark
 - Make sure you have set up the ssh connections correctly and have the machines in your known host and have the ssh keys somewhere in your pc (or the machine you will start the script from).
 
 #### Instructions
-For both scripts, run: `python <program> <config_file_location>`.
+For both scripts, run: `python <script> <config_file_location>`.
 
 ##### Scripts
 - <strong>runner.py</strong>: This script will run the benchmark remotely with a client and a server
@@ -57,9 +71,14 @@ If in your config file you specify PLOT=1 you will also see a summary plot of th
 
 #### Description
 
-There is an additional runnable tool which is <string>plotter.py</strong>. It takes the output of server.rs as input and produces a plot of the bandwidth of single samples. This is not very reliable usually, especially when testing two-way communications, given that we may see higher spikes only because we had more stuff waiting to be processed in our server than what was effectively sent in that time frame.
+There is an additional runnable tool which is <string>plotter.py</strong>. It takes the output of our .rs program as input and produces a plot of bandwidth\latency of single samples and CDF.
+
+...Note: This is not very reliable for bandwidth usually, especially when testing two-way communications, given that we may see higher spikes only because we had more stuff waiting to be processed in our server than what was effectively sent in that time frame.
   
 #### Instructions
-- `python plotter.py <file_with_server.rs_output>.`
 
-Get the file you need by simply redirecting the output of `server.rs` to a file.
+- `python plotter.py <file_with_server.rs_output>`
+
+Get the file you need by simply redirecting to a file the output of:
+- `server.rs` for `rust-tcp-bw`
+- `client.rs` for `rust-tcp-latency`
