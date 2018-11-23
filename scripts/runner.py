@@ -8,16 +8,16 @@ import sys
 # It's important to include the appropriate ssh keys to be able to run ssh correctly.
 
 
-CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin server --release'
-CONST_CLIENT_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-ayce/rust-tcp-ayce && cargo build --bin client --release'
-CONST_RUN_SERVER = './rust-tcp-ayce/rust-tcp-ayce/target/release/server'
-CONST_RUN_CLIENT = './rust-tcp-ayce/rust-tcp-ayce/target/release/client'
-CONST_DEFAULT_CONFIG_FILE = './default_config.config'
+CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-io-perf/{} && cargo build --bin server --release'
+CONST_CLIENT_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-io-perf/{} && cargo build --bin client --release'
+CONST_RUN_SERVER = './rust-tcp-io-perf/{}/target/release/server'
+CONST_RUN_CLIENT = './rust-tcp-io-perf/{}/target/release/client'
 
 
 # Default configuration
 def default_config():
     return {
+        'PROGRAM': 'rust-tcp-bw',
         'SERVER_ADDRESS': 'euler01',
         'CLIENT_ADDRESS': 'euler02',
         'KBYTES': '10000',
@@ -48,15 +48,20 @@ def parse_config():
 CONFIG = parse_config()
 
 
+# Method to edit the fixed commands to point at the right program
+def parse_command(command):
+    return command.replace('{}', CONFIG['PROGRAM'])
+
+
 # Returns the command to run the client with the specified server
 def run_client_command(server_address):
-    return (CONST_RUN_CLIENT + ' -a ' + server_address + ' -p ' + CONFIG['PORT'] + ' -k ' + CONFIG['KBYTES'] +
-            ' -r ' + CONFIG['ROUNDS'])
+    return (parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address + ' -p ' + CONFIG['PORT'] +
+            ' -k ' + CONFIG['KBYTES'] + ' -r ' + CONFIG['ROUNDS'])
 
 
 # Returns the command to run the server
 def run_server_command():
-    return CONST_RUN_SERVER
+    return parse_command(CONST_RUN_SERVER)
 
 
 # Print given stdout iterator and collects results in a list that is returned when the program completes
@@ -93,7 +98,8 @@ def cargo_compile(ssh, compiling_command):
 
 # Compile the executables on server and client
 def compile_source(server, client):
-    if cargo_compile(server, CONST_SERVER_COMPILE) != 0 or cargo_compile(client, CONST_CLIENT_COMPILE):
+    if (cargo_compile(server, parse_command(CONST_SERVER_COMPILE)) != 0 or
+            cargo_compile(client, parse_command(CONST_CLIENT_COMPILE))):
         return -1
     return 0
 
@@ -118,9 +124,10 @@ def connect_remote(server_address, client_address):
     return server, client
 
 
+# TODO OR CLIENT
 # Run server and client and returns stdout of server
 def run_remote(server, client, server_address):
-    _, sout, serr = server.exec_command(CONST_RUN_SERVER)
+    _, sout, serr = server.exec_command(parse_command(CONST_RUN_SERVER))
     time.sleep(5)
     _, cout, cerr = client.exec_command(run_client_command(server_address))
 

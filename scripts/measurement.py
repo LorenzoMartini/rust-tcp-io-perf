@@ -1,7 +1,8 @@
 # Helper to wrap utilities to parse measurments
 
 
-# Represent a measurement line output by the server, containing number of bytes processed and time it took to process
+# Represent a measurement line output by the server/client,
+# containing number of bytes processed and time it took to process
 class Measurement:
 
     n_bytes = 0
@@ -23,6 +24,7 @@ def create_measurements_list(output):
     return measurements
 
 
+# TODO and latency
 # Grabs a stable portion of the measurements and outputs the average
 def print_measurements_avg(measurements, machine_id=''):
     tot_len = len(measurements)
