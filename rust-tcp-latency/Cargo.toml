@@ -10,3 +10,4 @@ description = "A Rust program to measure roundtrip latency of a TCP socket conne
 [dependencies]
 bytes = "*"
 clap = "2"
+streaming-harness-hdrhist = {git="https://github.com/utaal/hdrhist-rust"}

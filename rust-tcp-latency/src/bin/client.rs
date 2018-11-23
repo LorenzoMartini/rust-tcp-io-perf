@@ -1,5 +1,6 @@
 extern crate bytes;
 extern crate rust_tcp_latency;
+extern crate streaming_harness_hdrhist;
 
 use std::net::{Shutdown, TcpStream};
 use std::io::{Read, Write};
@@ -46,11 +47,14 @@ fn main() {
 
         println!("Sent/received everything!");
         stream.shutdown(Shutdown::Both).expect("shutdown call failed");
-
+        let mut hist = streaming_harness_hdrhist::HDRHist::new();
         for measure in measurements {
             println!("[{},{:?},{}us]", n_bytes, measure,
                      measure.as_secs() * 1_000_000u64 + measure.subsec_micros() as u64);
+            hist.add_value(measure.as_secs() * 1_000_000u64 + measure.subsec_micros() as u64);
         }
+        println!("HDRHIST summary:\nsummary {:#?}\nsummary_string\n{}",
+                  hist.summary().collect::<Vec<_>>(), hist.summary_string());
     } else {
         println!("Couldn't connect to server...");
     }
