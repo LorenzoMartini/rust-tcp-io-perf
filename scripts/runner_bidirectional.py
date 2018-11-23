@@ -61,11 +61,11 @@ def run(server_address, client_address):
     measurements2 = measurement.create_measurements_list(output2)
 
     if runner.CONFIG['PLOT'] == '1':
-        plotter.plot_measurements(measurements)
-        plotter.plot_measurements(measurements2)
+        plotter.plot_measurements(measurements, runner.CONFIG['PROGRAM'])
+        plotter.plot_measurements(measurements2, runner.CONFIG['PROGRAM'])
 
-    measurement.print_measurements_avg(measurements, 'server1')
-    measurement.print_measurements_avg(measurements2, 'server2')
+    measurement.print_measurements_summary(measurements, runner.CONFIG['PROGRAM'], 'server1')
+    measurement.print_measurements_summary(measurements2, runner.CONFIG['PROGRAM'], 'server2')
 
 
 def main():

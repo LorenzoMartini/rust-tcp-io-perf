@@ -125,23 +125,21 @@ def connect_remote(server_address, client_address):
 
 
 # TODO OR CLIENT
-# Run server and client and returns stdout of server
+# Run server and client and returns stdout of server if rust-tcp-bw or client if rust-tcp-latency
 def run_remote(server, client, server_address):
     _, sout, serr = server.exec_command(parse_command(CONST_RUN_SERVER))
     time.sleep(5)
     _, cout, cerr = client.exec_command(run_client_command(server_address))
 
-    # See output from client and make sure he's done
-    print_and_collect_out(cout, 'client')
-
-    # See output from server and make sure he's done. Store out to analyze it and eventually plot it later
-    out = print_and_collect_out(sout, 'server')
+    # See output from client (in progress) and servers and make sure they are done
+    client_out = print_and_collect_out(cout, 'client')
+    server_out = print_and_collect_out(sout, 'server')
 
     # Print err
     for line in serr:
         print('Server ERR: ' + line)
 
-    return out
+    return server_out if CONFIG['PROGRAM'] == 'rust-tcp-bw' else client_out
 
 
 # Does the job of connecting, compiling and analyzing output
@@ -167,9 +165,9 @@ def run(server_address, client_address):
     measurements = measurement.create_measurements_list(output)
 
     if CONFIG['PLOT'] == '1':
-        plotter.plot_measurements(measurements)
+        plotter.plot_measurements(measurements, CONFIG['PROGRAM'])
 
-    measurement.print_measurements_avg(measurements)
+    measurement.print_measurements_summary(measurements, program=CONFIG['PROGRAM'])
 
 
 def main():

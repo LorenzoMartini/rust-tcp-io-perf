@@ -26,7 +26,7 @@ def create_measurements_list(output):
 
 # TODO and latency
 # Grabs a stable portion of the measurements and outputs the average
-def print_measurements_avg(measurements, machine_id=''):
+def print_measurements_summary(measurements, program, machine_id=''):
     tot_len = len(measurements)
     i = 0
 
