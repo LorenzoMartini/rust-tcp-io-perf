@@ -1,0 +1,1 @@
+{"rustc":7311099760834594431,"features":"[]","target":6020205813041929115,"profile":11651190162070073731,"path":14778663676003412405,"deps":[["bytes v0.4.10","bytes",12603403585677191760]],"local":[{"MtimeBased":[[1541771005,634157310],".fingerprint/tcp-ayce-a42a547fe0a1bb2f/dep-bin-server-a42a547fe0a1bb2f"]}],"rustflags":[],"edition":"Edition2015"}
