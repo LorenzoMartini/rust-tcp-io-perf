@@ -13,6 +13,7 @@ fn main() {
 
     let listener = TcpListener::bind("0.0.0.0:".to_owned() + &args.port).unwrap();
 
+    println!("Server running, listening for connection on 0.0.0.0:{}", &args.port);
     let mut stream = listener.incoming().next().unwrap().unwrap();
 
     println!("Connection established with {:?}!\nExpected {} Bytes for {} rounds",

@@ -19,15 +19,19 @@ fn main() {
     if n_bytes >= 1_000_000_000 {
         panic!("OMG 1GB? this is probably too much data you wanna send")
     }
+
+    let mut buf = vec![0; n_bytes];
+    let mut active = true;
+    let mut measurements = Vec::new();
+    
     let listener = TcpListener::bind("0.0.0.0:".to_owned() + &args.port).unwrap();
 
+    println!("Server running, listening for connection on 0.0.0.0:{}", &args.port);
     let mut stream = listener.incoming().next().unwrap().unwrap();
 
     println!("Connection established with {:?}!\nExpected {} Bytes for {} rounds",
              stream.peer_addr().unwrap(), n_bytes, args.n_rounds);
-    let mut buf = vec![0; n_bytes];
-    let mut active = true;
-    let mut measurements = Vec::new();
+
     let mut start = Instant::now();
     while active {
         let recv = stream.read(&mut buf).unwrap();
