@@ -37,7 +37,7 @@ pub fn parse_config() -> Config {
             .value_name("n_kbytes")
             .help("number of kbytes to transfer, must be a multiple of 100")
             .takes_value(true)
-            .default_value("100")
+            .default_value("10")
         )
         .arg(Arg::with_name("rounds")
             .short("r")
@@ -45,7 +45,7 @@ pub fn parse_config() -> Config {
             .value_name("rounds")
             .help("number of rounds of transfer to perform")
             .takes_value(true)
-            .default_value("10000")
+            .default_value("100000")
         )
         .get_matches();
 
@@ -54,6 +54,17 @@ pub fn parse_config() -> Config {
     let port = String::from(matches.value_of("port").unwrap());
     let n_kbytes = matches.value_of("n_kbytes").unwrap().parse::<usize>().unwrap();
     let n_rounds = matches.value_of("rounds").unwrap().parse::<usize>().unwrap();
+
+    // Don't kill machines
+    if n_kbytes > 100_000 {
+        panic!("More than 100 MB per round is probably too much data you wanna send, \
+        you may kill one of the machines. Try with maybe 100MB but more rounds")
+    }
+
+    // Very improbable case error handling
+    if (n_kbytes * 1000) as u128 * n_rounds as u128 > u64::max_value().into() {
+        panic!("There's gonna be too much data. Make sure n_bytes * n_rounds is < u128::MAX")
+    }
 
     Config {
         address,

@@ -23,7 +23,7 @@ fn main() {
     let progress_tracking_percentage = n_rounds / 100;
 
     if let Ok(mut stream) = TcpStream::connect(args.address_and_port()) {
-        println!("Connection established!, Ready to send...");
+        println!("Connection established! Ready to send...");
 
         for i in 0..n_rounds {
             let start = Instant::now();
