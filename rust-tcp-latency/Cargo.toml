@@ -5,7 +5,7 @@ version = "0.0.0"
 authors = ["Lorenzo Martini <lmartini@student.ethz.ch>"]
 readme = "README.md"
 
-description = "A Rust program to shove data through TCP sockets:"
+description = "A Rust program to measure roundtrip latency of a TCP socket connection"
 
 [dependencies]
 bytes = "*"
