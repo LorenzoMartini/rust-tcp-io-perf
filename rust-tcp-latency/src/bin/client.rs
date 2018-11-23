@@ -7,6 +7,10 @@ use std::io::{Read, Write};
 use std::time::Instant;
 use rust_tcp_latency::config;
 
+fn print_line() {
+    println!("\n-------------------------------------------------------------\n");
+}
+
 fn main() {
 
     let args = config::parse_config();
@@ -45,16 +49,26 @@ fn main() {
             }
         }
 
-        println!("Sent/received everything!");
         stream.shutdown(Shutdown::Both).expect("shutdown call failed");
+
+        println!("Sent/received everything!");
         let mut hist = streaming_harness_hdrhist::HDRHist::new();
         for measure in measurements {
-            println!("[{},{:?},{}us]", n_bytes, measure,
-                     measure.as_secs() * 1_000_000u64 + measure.subsec_micros() as u64);
-            hist.add_value(measure.as_secs() * 1_000_000u64 + measure.subsec_micros() as u64);
+            hist.add_value(measure.as_secs() * 1_000_000_000u64 + measure.subsec_nanos() as u64);
         }
-        println!("HDRHIST summary:\nsummary {:#?}\nsummary_string\n{}",
-                  hist.summary().collect::<Vec<_>>(), hist.summary_string());
+
+        // Format output nicely
+        print_line();
+        println!("HDRHIST summary, measure in ns");
+        print_line();
+        println!("summary:\n{:#?}", hist.summary().collect::<Vec<_>>());
+        print_line();
+        println!("Summary_string:\n{}", hist.summary_string());
+        print_line();
+        println!("CDF summary:\n");
+        for entry in hist.ccdf() {
+            println!("{:?}", entry);
+        }
     } else {
         println!("Couldn't connect to server...");
     }

@@ -13,6 +13,10 @@ struct Measure {
     n_bytes: usize,
 }
 
+fn print_line() {
+    println!("\n-------------------------------------------------------------\n");
+}
+
 fn main() {
     let args = config::parse_config();
     let n_bytes = args.n_kbytes * 1000;
@@ -46,8 +50,8 @@ fn main() {
         }
     }
 
-    // Print out vec of measurements, print both precise time and time in us
-    println!("Done reading, results in format [N_BYTES,TIME,APPROX_TIME_IN_US]:");
+    println!("Done reading, Computing summary...");
+
     let mut tot_bytes: u64 = 0;
     let mut tot_time: u64 = 0;
     let len = measurements.len();
@@ -56,16 +60,29 @@ fn main() {
         let entry = &measurements[i];
         let duration = entry.end.duration_since(entry.start);
         let duration_us = duration.as_secs() * 1_000_000u64 + duration.subsec_micros() as u64;
-        println!("[{},{:?},{}us]", entry.n_bytes, duration, duration_us);
+        let duration_ns = duration.as_secs() * 1_000_000_000u64 + duration.subsec_nanos() as u64;
 
         // Add measurement to compute bw
         if i > len / 3 && i < (len * 2 / 3) {
             tot_bytes += entry.n_bytes as u64;
             tot_time += duration_us;
         }
-        hist.add_value(duration_us);
+        hist.add_value(duration_ns);
     }
-    println!("HDRHIST summary:\nsummary {:#?}\nsummary_string\n{}",
-             hist.summary().collect::<Vec<_>>(), hist.summary_string());
-    println!("Available approximated bandwidth: {} MB/s", tot_bytes / tot_time)
+
+    // Format output nicely
+    print_line();
+    println!("HDRHIST summary, measure in ns");
+    print_line();
+    println!("summary:\n{:#?}", hist.summary().collect::<Vec<_>>());
+    print_line();
+    println!("Summary_string:\n{}", hist.summary_string());
+    print_line();
+    println!("CDF summary:\n");
+    for entry in hist.ccdf() {
+        println!("{:?}", entry);
+    }
+    print_line();
+    println!("Available approximated bandwidth: {} MB/s", tot_bytes / tot_time);
+    print_line();
 }
