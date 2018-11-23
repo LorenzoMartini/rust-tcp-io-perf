@@ -4,13 +4,13 @@ This repo contains programs to benchmark how much bandwidth we effectively have 
 
 We use TCP sockets and Rust to benchmark thiese.
 
-# Bandwidth measure
+## Bandwidth measure
 
 We measure the effective bandwidth available on a communication channel.
 
 We run a server and a client at the two ends of the channel, and start sending big quantities of data from one end to the other. On the server side we can then measure (only in stable state) how much data we have received in how much time and derive an approximation of the bandwidth.
 
-# Latency measure
+## Latency measure
 
 We measure the latency between the two machines at the end of a communication channel.
 
