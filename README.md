@@ -46,7 +46,7 @@ If you want to test the two-way communication, then setup 2 servers and then run
 ### Running via scripts
 
 I have provided scripts to run the benchmarks automatically, <strong>runner.py</strong> and <strong>runner_bidirectional.py</strong>.
-For these scripts you will need to edit the configuration file. Change values in `default_config.config` or create a config file in the same format with the same keys and change values. You can specify the program to test (whether `rust-tcp-bw` or `rust-tcp-latency`) in your config file.
+For these scripts you will need to edit the configuration file. Change values in `config_bw.config` (or `config_latency.config`), or create a config file in the same format with the same keys and change values. You can specify the program to test (whether `rust-tcp-bw` or `rust-tcp-latency`) in your config file.
 
 The config file is important because it will contain a bunch of things like machines names, ssh keys, username to use for the ssh, that will be necessary to run your programs.
 
