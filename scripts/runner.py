@@ -19,6 +19,7 @@ def default_config():
     return {
         'PROGRAM': 'rust-tcp-bw',
         'SERVER_ADDRESS': 'euler01',
+        # Aliasing is necessary, the remote machines may see themselves with different addresses
         'SERVER_ADDRESS_ALIAS': 'euler01',
         'CLIENT_ADDRESS': 'euler02',
         'CLIENT_ADDRESS_ALIAS': 'euler02',
