@@ -19,7 +19,9 @@ def default_config():
     return {
         'PROGRAM': 'rust-tcp-bw',
         'SERVER_ADDRESS': 'euler01',
+        'SERVER_ADDRESS_ALIAS': 'euler01',
         'CLIENT_ADDRESS': 'euler02',
+        'CLIENT_ADDRESS_ALIAS': 'euler02',
         'KBYTES': '10000',
         'ROUNDS': '10000',
         'PORT': '7878',
@@ -53,9 +55,10 @@ def parse_command(command):
     return command.replace('{}', CONFIG['PROGRAM'])
 
 
-# Returns the command to run the client with the specified server
-def run_client_command(server_address):
-    return parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address + args()
+# Returns the command to run the client with the specified server.
+# Need the address the client knows of the server to connect.
+def run_client_command(server_address_alias):
+    return parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address_alias + args()
 
 
 # Returns the command to run the server
@@ -129,10 +132,10 @@ def connect_remote(server_address, client_address):
 
 
 # Run server and client and returns stdout of server if rust-tcp-bw or client if rust-tcp-latency
-def run_remote(server, client, server_address):
+def run_remote(server, client, server_address_alias):
     _, sout, serr = server.exec_command(run_server_command())
     time.sleep(5)
-    _, cout, cerr = client.exec_command(run_client_command(server_address))
+    _, cout, cerr = client.exec_command(run_client_command(server_address_alias))
 
     # See output from client (in progress) and servers and make sure they are done
     client_out = print_and_collect_out(cout, 'client')
@@ -146,7 +149,7 @@ def run_remote(server, client, server_address):
 
 
 # Does the job of connecting, compiling and analyzing output
-def run(server_address, client_address):
+def run(server_address, client_address, server_address_alias):
     server, client = None, None
     output = None
     try:
@@ -154,7 +157,7 @@ def run(server_address, client_address):
         if compile_source(server, client) != 0:
             print("Compiling error")
             return
-        output = run_remote(server, client, server_address)
+        output = run_remote(server, client, server_address_alias)
     finally:
         if server:
             server.close()
@@ -172,7 +175,7 @@ def run(server_address, client_address):
 
 
 def main():
-    run(CONFIG['SERVER_ADDRESS'], CONFIG['CLIENT_ADDRESS'])
+    run(CONFIG['SERVER_ADDRESS'], CONFIG['CLIENT_ADDRESS'], CONFIG['SERVER_ADDRESS_ALIAS'])
 
 
 if __name__ == "__main__":

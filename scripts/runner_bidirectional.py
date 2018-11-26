@@ -12,12 +12,12 @@ import plotter
 
 
 # Run both servers and both clients and returns stdout of both
-def run_remote(server, client, server2, client2, server_address, server2_address):
+def run_remote(server, client, server2, client2, server_address_alias, server2_address_alias):
     _, sout, serr = server.exec_command(runner.run_server_command())
     _, sout2, serr2 = server2.exec_command(runner.run_server_command())
     time.sleep(5)
-    _, cout, cerr = client.exec_command(runner.run_client_command(server_address))
-    _, cout2, cerr2 = client2.exec_command(runner.run_client_command(server2_address))
+    _, cout, cerr = client.exec_command(runner.run_client_command(server_address_alias))
+    _, cout2, cerr2 = client2.exec_command(runner.run_client_command(server2_address_alias))
 
     runner.print_and_collect_out(cout, 'client1')
     runner.print_and_collect_out(cout2, 'client2')
@@ -34,7 +34,7 @@ def run_remote(server, client, server2, client2, server_address, server2_address
 
 
 # Does the job of connecting, compiling and analyzing output
-def run(server_address, client_address):
+def run(server_address, client_address, server_address_alias, client_address_alias):
     server, client = None, None
     output, output2 = None, None
     try:
@@ -44,7 +44,7 @@ def run(server_address, client_address):
             print("Compiling error")
             return
         time.sleep(2)
-        output, output2 = run_remote(server, client, server2, client2, server_address, client_address)
+        output, output2 = run_remote(server, client, server2, client2, server_address_alias, client_address_alias)
     finally:
         if server:
             server.close()
@@ -70,7 +70,8 @@ def main():
     if runner.CONFIG['PROGRAM'] != 'rust-tcp-bw':
         print('This script works only for rust-tcp-bw')
         exit(-1)
-    run(runner.CONFIG['SERVER_ADDRESS'], runner.CONFIG['CLIENT_ADDRESS'])
+    run(runner.CONFIG['SERVER_ADDRESS'], runner.CONFIG['CLIENT_ADDRESS'],
+        runner.CONFIG['SERVER_ADDRESS_ALIAS'], runner.CONFIG['CLIENT_ADDRESS_ALIAS'])
 
 
 if __name__ == "__main__":
