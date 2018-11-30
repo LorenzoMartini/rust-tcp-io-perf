@@ -3,16 +3,17 @@ extern crate rust_tcp_latency;
 extern crate streaming_harness_hdrhist;
 
 use std::net::{Shutdown, TcpStream};
-use std::io::{Read, Write};
 use std::time::Instant;
 use std::{thread, time};
 use rust_tcp_latency::config;
+use rust_tcp_latency::connection;
 
+/// Prints dashed line
 fn print_line() {
     println!("\n-------------------------------------------------------------\n");
 }
 
-
+/// Nicely outputs summary of execution with stats and CDF points.
 fn print_summary(hist: streaming_harness_hdrhist::HDRHist) {
     println!("Sent/received everything!");
     print_line();
@@ -38,8 +39,8 @@ fn main() {
     let n_bytes = args.n_kbytes * 1000;
 
     // Create buffers to read/write
-    let wbuf = vec![0; n_bytes];
-    let mut rbuf = vec![0; n_bytes];
+    let wbuf: Vec<u8> = vec![0; n_bytes];
+    let mut rbuf: Vec<u8> = vec![0; n_bytes];
 
     let progress_tracking_percentage = n_rounds / 100;
 
@@ -50,6 +51,7 @@ fn main() {
             Ok(mut stream) => {
                 connected = true;
                 let mut hist = streaming_harness_hdrhist::HDRHist::new();
+
                 stream.set_nodelay(true).expect("Can't set no_delay to true");
                 stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
 
@@ -57,30 +59,10 @@ fn main() {
 
                 for i in 0..n_rounds {
 
-                    // Make sure we send everything
-                    let mut send = 0;
                     let start = Instant::now();
-                    while send < n_bytes {
-                        match stream.write(&wbuf) {
-                            Ok(n) => send += n,
-                            Err(err) => match err.kind() {
-                                std::io::ErrorKind::WouldBlock => {}
-                                _ => panic!("Error occurred while writing: {:?}", err),
-                            }
-                        }
-                    }
 
-                    // Make sure we receive the full buf back
-                    let mut recv = 0;
-                    while recv < n_bytes {
-                        match stream.read(&mut rbuf) {
-                            Ok(n) => recv += n,
-                            Err(err) => match err.kind() {
-                                std::io::ErrorKind::WouldBlock => {}
-                                _ => panic!("Error occurred while reading: {:?}", err),
-                            }
-                        }
-                    }
+                    connection::send_message(n_bytes, &mut stream, &wbuf);
+                    connection::receive_message(n_bytes, &mut stream, &mut rbuf);
 
                     let duration = Instant::now().duration_since(start);
                     hist.add_value(duration.as_secs() * 1_000_000_000u64 + duration.subsec_nanos() as u64);
@@ -97,7 +79,7 @@ fn main() {
                 print_summary(hist);
             },
             Err(error) => {
-                println!("Couldn't connect to server... Error {}", error);
+                println!("Couldn't connect to server, retrying... Error {}", error);
                 thread::sleep(time::Duration::from_secs(1));
             }
         }
