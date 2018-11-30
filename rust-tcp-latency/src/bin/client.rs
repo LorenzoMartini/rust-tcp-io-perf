@@ -5,6 +5,7 @@ extern crate streaming_harness_hdrhist;
 use std::net::{Shutdown, TcpStream};
 use std::io::{Read, Write};
 use std::time::Instant;
+use std::{thread, time};
 use rust_tcp_latency::config;
 
 fn print_line() {
@@ -35,7 +36,6 @@ fn main() {
     println!("Connecting to the server {}...", args.address);
     let n_rounds = args.n_rounds;
     let n_bytes = args.n_kbytes * 1000;
-    let mut hist = streaming_harness_hdrhist::HDRHist::new();
 
     // Create buffers to read/write
     let wbuf = vec![0; n_bytes];
@@ -43,54 +43,63 @@ fn main() {
 
     let progress_tracking_percentage = n_rounds / 100;
 
-    if let Ok(mut stream) = TcpStream::connect(args.address_and_port()) {
-        stream.set_nodelay(true).expect("Can't set no_delay to true");
-        stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
+    let mut connected = false;
 
-        println!("Connection established! Ready to send...");
+    while !connected {
+        match TcpStream::connect(args.address_and_port()) {
+            Ok(mut stream) => {
+                connected = true;
+                let mut hist = streaming_harness_hdrhist::HDRHist::new();
+                stream.set_nodelay(true).expect("Can't set no_delay to true");
+                stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
 
-        for i in 0..n_rounds {
+                println!("Connection established! Ready to send...");
 
-            // Make sure we send everything
-            let mut send = 0;
-            let start = Instant::now();
-            while send < n_bytes {
-                match stream.write(&wbuf) {
-                    Ok(n) => send += n,
-                    Err(err) => match err.kind() {
-                        std::io::ErrorKind::WouldBlock => {}
-                        _ => panic!("Error occurred while writing: {:?}", err),
+                for i in 0..n_rounds {
+
+                    // Make sure we send everything
+                    let mut send = 0;
+                    let start = Instant::now();
+                    while send < n_bytes {
+                        match stream.write(&wbuf) {
+                            Ok(n) => send += n,
+                            Err(err) => match err.kind() {
+                                std::io::ErrorKind::WouldBlock => {}
+                                _ => panic!("Error occurred while writing: {:?}", err),
+                            }
+                        }
+                    }
+
+                    // Make sure we receive the full buf back
+                    let mut recv = 0;
+                    while recv < n_bytes {
+                        match stream.read(&mut rbuf) {
+                            Ok(n) => recv += n,
+                            Err(err) => match err.kind() {
+                                std::io::ErrorKind::WouldBlock => {}
+                                _ => panic!("Error occurred while reading: {:?}", err),
+                            }
+                        }
+                    }
+
+                    let duration = Instant::now().duration_since(start);
+                    hist.add_value(duration.as_secs() * 1_000_000_000u64 + duration.subsec_nanos() as u64);
+
+                    if i % progress_tracking_percentage == 0 {
+                        // Track progress on screen
+                        println!("{}% completed", i / progress_tracking_percentage);
                     }
                 }
-            }
 
-            // Make sure we receive the full buf back
-            let mut recv = 0;
-            while recv < n_bytes {
-                match stream.read(&mut rbuf){
-                    Ok(n) => recv += n,
-                    Err(err) => match err.kind() {
-                        std::io::ErrorKind::WouldBlock => {}
-                        _ => panic!("Error occurred while reading: {:?}", err),
-                    }
-                }
-            }
+                stream.shutdown(Shutdown::Both).expect("shutdown call failed");
 
-            let duration = Instant::now().duration_since(start);
-            hist.add_value(duration.as_secs() * 1_000_000_000u64 + duration.subsec_nanos() as u64);
-
-            if i % progress_tracking_percentage == 0 {
-                // Track progress on screen
-                println!("{}% completed", i / progress_tracking_percentage);
+                // Format output nicely
+                print_summary(hist);
+            },
+            Err(error) => {
+                println!("Couldn't connect to server... Error {}", error);
+                thread::sleep(time::Duration::from_secs(1));
             }
         }
-
-        stream.shutdown(Shutdown::Both).expect("shutdown call failed");
-
-        // Format output nicely
-        print_summary(hist);
-
-    } else {
-        println!("Couldn't connect to server...");
     }
 }
