@@ -1,5 +1,6 @@
 use std::net::TcpStream;
 use std::io::{Read, Write};
+use std::io::ErrorKind::WouldBlock;
 
 /// Sends first n_bytes from wbuf using the given stream.
 ///// Make sure wbuf.len >= n_bytes
@@ -9,7 +10,7 @@ pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) {
         match stream.write(&wbuf[send..]) {
             Ok(n) => send += n,
             Err(err) => match err.kind() {
-                std::io::ErrorKind::WouldBlock => {}
+                WouldBlock => {}
                 _ => panic!("Error occurred while writing: {:?}", err),
             }
         }
@@ -25,7 +26,7 @@ pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8
         match stream.read(&mut rbuf[recv..]) {
             Ok(n) => recv += n,
             Err(err) => match err.kind() {
-                std::io::ErrorKind::WouldBlock => {}
+                WouldBlock => {}
                 _ => panic!("Error occurred while reading: {:?}", err),
             }
         }
