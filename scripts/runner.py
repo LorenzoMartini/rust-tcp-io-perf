@@ -172,7 +172,7 @@ def run(server_address, client_address, server_address_alias):
     measurements = measurement.create_measurements_list(output)
 
     if CONFIG['PLOT'] == '1':
-        plotter.plot_measurements(measurements, CONFIG['PROGRAM'])
+        plotter.plot_cdf(measurements, CONFIG['PROGRAM'])
 
 
 def main():
