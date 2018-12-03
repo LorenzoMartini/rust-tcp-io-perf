@@ -32,9 +32,7 @@ fn print_summary(hist: streaming_harness_hdrhist::HDRHist) {
 
 fn main() {
 
-    // Pin core
-    let core_ids = core_affinity::get_core_ids().unwrap();
-    core_affinity::set_for_current(core_ids[1 % core_ids.len()]);
+    connection::pin_thread(1);
 
     let args = config::parse_config();
 

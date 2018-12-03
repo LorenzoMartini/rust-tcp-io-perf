@@ -1,3 +1,5 @@
+extern crate core_affinity;
+
 use std::net::TcpStream;
 use std::io::{Read, Write};
 use std::io::ErrorKind::WouldBlock;
@@ -31,4 +33,9 @@ pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8
             }
         }
     }
+}
+
+pub fn pin_thread(index: u8) {
+    let core_ids = core_affinity::get_core_ids().unwrap();
+    core_affinity::set_for_current(core_ids[index % core_ids.len()]);
 }
