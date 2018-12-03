@@ -6,6 +6,10 @@ use rust_tcp_latency::config;
 use rust_tcp_latency::connection;
 
 fn main() {
+    // Pin core
+    let core_ids = core_affinity::get_core_ids().unwrap();
+    core_affinity::set_for_current(core_ids[2 % core_ids.len()]);
+
     let args = config::parse_config();
     let n_bytes = args.n_kbytes * 1000;
     let n_rounds = args.n_rounds;
