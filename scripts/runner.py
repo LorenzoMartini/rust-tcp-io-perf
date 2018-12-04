@@ -28,6 +28,9 @@ def default_config():
         'PORT': '7878',
         'USERNAME': 'lmartini',
         'KEY_FILENAME': '/home/lorenzo/.ssh/euler0x-key',
+        'NO-DELAY': '1',
+        'NON-BLOCKING': '1',
+        'PINNING': '0,1',
         'PLOT': '0',
         'VERBOSE': '1'
     }
@@ -69,7 +72,9 @@ def run_server_command():
 
 # Pack args in command line
 def args():
-    return ' -p ' + CONFIG['PORT'] + ' -k ' + CONFIG['KBYTES'] + ' -r ' + CONFIG['ROUNDS']
+    return (' -p ' + CONFIG['PORT'] + ' -k ' + CONFIG['KBYTES'] + ' -r ' + CONFIG['ROUNDS'] +
+            (' -b ' + CONFIG['NON-BLOCKING'] + ' -d ' + CONFIG['NO-DELAY'] + ' -t ' + CONFIG['PINNING'])
+            if CONFIG['PROGRAM'] == 'rust-tcp-latency' else '')
 
 
 # Print given stdout iterator and collects results in a list that is returned when the program completes
