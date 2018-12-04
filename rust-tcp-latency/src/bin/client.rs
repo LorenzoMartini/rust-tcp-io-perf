@@ -32,8 +32,6 @@ fn print_summary(hist: streaming_harness_hdrhist::HDRHist) {
 
 fn main() {
 
-    connection::pin_thread(1);
-
     let args = config::parse_config();
 
     println!("Connecting to the server {}...", args.address);
@@ -51,11 +49,9 @@ fn main() {
     while !connected {
         match TcpStream::connect(args.address_and_port()) {
             Ok(mut stream) => {
+                connection::setup(&args, &mut stream);
                 connected = true;
                 let mut hist = streaming_harness_hdrhist::HDRHist::new();
-
-                stream.set_nodelay(true).expect("Can't set no_delay to true");
-                stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
 
                 println!("Connection established! Ready to send...");
 

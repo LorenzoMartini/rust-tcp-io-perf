@@ -5,6 +5,9 @@ pub struct Config {
     pub port: String,
     pub n_kbytes: usize,
     pub n_rounds: usize,
+    pub no_delay: bool,
+    pub non_blocking: bool,
+    pub p_id: i8,
 }
 
 impl Config {
@@ -47,6 +50,30 @@ pub fn parse_config() -> Config {
             .takes_value(true)
             .default_value("1000000")
         )
+        .arg(Arg::with_name("nodelay")
+            .short("d")
+            .long("nodelay")
+            .value_name("nodelay")
+            .help("sets TCP in no-delay mode. Any int > 0 for true, 0 for false")
+            .takes_value(true)
+            .default_value("1")
+        )
+        .arg(Arg::with_name("nonblocking")
+            .short("b")
+            .long("nonblocking")
+            .value_name("nonblocking")
+            .help("sets TCP in non-blocking mode. Any int > 0 for true, 0 for false")
+            .takes_value(true)
+            .default_value("1")
+        )
+        .arg(Arg::with_name("thread")
+            .short("t")
+            .long("thread")
+            .value_name("thread")
+            .help("id of process to pin thread to, -1 for no pinning")
+            .takes_value(true)
+            .default_value("-1")
+        )
         .get_matches();
 
     // Gets a value for config if supplied by user, or defaults to "default.conf"
@@ -54,6 +81,9 @@ pub fn parse_config() -> Config {
     let port = String::from(matches.value_of("port").unwrap());
     let n_kbytes = matches.value_of("n_kbytes").unwrap().parse::<usize>().unwrap();
     let n_rounds = matches.value_of("rounds").unwrap().parse::<usize>().unwrap();
+    let no_delay = matches.value_of("nodelay").unwrap().parse::<usize>().unwrap() > 0;
+    let non_blocking = matches.value_of("nonblocking").unwrap().parse::<usize>().unwrap() > 0;
+    let p_id = matches.value_of("thread").unwrap().parse::<i8>().unwrap();
 
     // Don't kill machines
     if n_kbytes > 100_000 {
@@ -70,6 +100,9 @@ pub fn parse_config() -> Config {
         address,
         port,
         n_kbytes,
-        n_rounds
+        n_rounds,
+        no_delay,
+        non_blocking,
+        p_id
     }
 }

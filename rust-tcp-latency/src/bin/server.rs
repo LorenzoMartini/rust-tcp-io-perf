@@ -7,8 +7,6 @@ use rust_tcp_latency::connection;
 
 fn main() {
 
-    connection::pin_thread(0);
-
     let args = config::parse_config();
     let n_bytes = args.n_kbytes * 1000;
     let n_rounds = args.n_rounds;
@@ -19,8 +17,7 @@ fn main() {
 
     let mut stream = listener.incoming().next().unwrap().unwrap();
 
-    stream.set_nodelay(true).expect("Can't set no_delay to true");
-    stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
+    connection::setup(&args, &mut stream);
 
     println!("Connection established with {:?}!\nExpected {} Bytes for {} rounds",
              stream.peer_addr().unwrap(), n_bytes, args.n_rounds);
