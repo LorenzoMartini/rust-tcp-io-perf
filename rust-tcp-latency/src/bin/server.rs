@@ -1,7 +1,7 @@
 extern crate bytes;
 extern crate rust_tcp_latency;
 
-use std::net::TcpListener;
+use std::os::unix::net::UnixListener;
 use rust_tcp_latency::config;
 use rust_tcp_latency::connection;
 
@@ -12,7 +12,7 @@ fn main() {
     let n_rounds = args.n_rounds;
     let mut buf = vec![0; n_bytes];
 
-    let listener = TcpListener::bind("0.0.0.0:".to_owned() + &args.port).unwrap();
+    let listener = UnixListener::bind("file").unwrap();
     println!("Server running, listening for connection on 0.0.0.0:{}", &args.port);
 
     let mut stream = listener.incoming().next().unwrap().unwrap();

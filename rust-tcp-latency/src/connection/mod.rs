@@ -1,13 +1,13 @@
 extern crate core_affinity;
 
-use std::net::TcpStream;
+use std::os::unix::net::UnixStream;
 use std::io::{Read, Write};
 use std::io::ErrorKind::WouldBlock;
 use config::Config;
 
 /// Sends first n_bytes from wbuf using the given stream.
 /// Make sure wbuf.len >= n_bytes
-pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) {
+pub fn send_message(n_bytes: usize, stream: &mut UnixStream, wbuf: &Vec<u8>) {
     let mut send = 0;
     while send < n_bytes {
         match stream.write(&wbuf[send..]) {
@@ -22,7 +22,7 @@ pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) {
 
 /// Reads n_bytes into rbuf from the given stream.
 /// Make sure rbuf.len >= n_bytes
-pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8>) {
+pub fn receive_message(n_bytes: usize, stream: &mut UnixStream, rbuf: &mut Vec<u8>) {
     // Make sure we receive the full buf back
     let mut recv = 0;
     while recv < n_bytes {
@@ -37,10 +37,7 @@ pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8
 }
 
 /// Setup the streams and eventually pins the thread according to the configuration.
-pub fn setup(config: &Config, stream: &mut TcpStream) {
-    if config.no_delay {
-        stream.set_nodelay(true).expect("Can't set no_delay to true");
-    }
+pub fn setup(config: &Config, stream: &mut UnixStream) {
     if config.non_blocking {
         stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
     }

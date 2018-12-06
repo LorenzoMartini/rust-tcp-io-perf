@@ -2,7 +2,7 @@ extern crate bytes;
 extern crate rust_tcp_latency;
 extern crate streaming_harness_hdrhist;
 
-use std::net::{Shutdown, TcpStream};
+use std::os::unix::net::UnixStream;
 use std::time::Instant;
 use std::{thread, time};
 use rust_tcp_latency::config;
@@ -47,7 +47,7 @@ fn main() {
     let mut connected = false;
 
     while !connected {
-        match TcpStream::connect(args.address_and_port()) {
+        match UnixStream::connect("file") {
             Ok(mut stream) => {
                 connection::setup(&args, &mut stream);
                 connected = true;
@@ -70,8 +70,6 @@ fn main() {
                         println!("{}% completed", i / progress_tracking_percentage);
                     }
                 }
-
-                stream.shutdown(Shutdown::Both).expect("shutdown call failed");
 
                 // Format output nicely
                 print_summary(hist);
