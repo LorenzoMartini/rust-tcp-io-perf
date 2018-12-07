@@ -4,6 +4,10 @@ use std::net::TcpStream;
 use std::io::{Read, Write};
 use std::io::ErrorKind::WouldBlock;
 use config::Config;
+use std::io;
+use std::net::ToSocketAddrs;
+use std::net::Shutdown;
+use std::net::TcpListener;
 
 /// Sends first n_bytes from wbuf using the given stream.
 /// Make sure wbuf.len >= n_bytes
@@ -44,8 +48,21 @@ pub fn setup(config: &Config, stream: &mut TcpStream) {
     if config.non_blocking {
         stream.set_nonblocking(true).expect("Can't set channel to be non-blocking");
     }
-    if config.p_id >= 0 {
-        let core_ids = core_affinity::get_core_ids().unwrap();
-        core_affinity::set_for_current(core_ids[(config.p_id as usize) % core_ids.len()]);
-    }
+}
+
+pub fn client_connect<A: ToSocketAddrs>(addr: A) -> io::Result<TcpStream> {
+    return TcpStream::connect(addr);
+}
+
+pub fn close_connection(stream: &TcpStream) {
+    stream.shutdown(Shutdown::Both).expect("shutdown call failed");
+}
+
+/// Starts listening on given port and return first connection to that port as a stream.
+pub fn server_listen_and_get_first_connection(port: &String) -> TcpStream {
+    let listener = TcpListener::bind("0.0.0.0:".to_owned() + port).unwrap();
+    println!("Server running, listening for connection on 0.0.0.0:{}", port);
+    let mut stream = listener.incoming().next().unwrap().unwrap();
+    println!("Connection established with {:?}!", stream.peer_addr().unwrap());
+    return stream;
 }

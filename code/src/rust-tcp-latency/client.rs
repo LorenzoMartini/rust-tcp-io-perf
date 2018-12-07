@@ -1,34 +1,13 @@
 extern crate bytes;
-extern crate rust_tcp_latency;
+extern crate rust_tcp_io_perf;
 extern crate streaming_harness_hdrhist;
 
-use std::net::{Shutdown, TcpStream};
 use std::time::Instant;
 use std::{thread, time};
-use rust_tcp_latency::config;
-use rust_tcp_latency::connection;
-
-/// Prints dashed line
-fn print_line() {
-    println!("\n-------------------------------------------------------------\n");
-}
-
-/// Nicely outputs summary of execution with stats and CDF points.
-fn print_summary(hist: streaming_harness_hdrhist::HDRHist) {
-    println!("Sent/received everything!");
-    print_line();
-    println!("HDRHIST summary, measure in ns");
-    print_line();
-    println!("summary:\n{:#?}", hist.summary().collect::<Vec<_>>());
-    print_line();
-    println!("Summary_string:\n{}", hist.summary_string());
-    print_line();
-    println!("CDF summary:\n");
-    for entry in hist.ccdf() {
-        println!("{:?}", entry);
-    }
-}
-
+use rust_tcp_io_perf::config;
+use rust_tcp_io_perf::connection;
+use rust_tcp_io_perf::print_utils;
+use rust_tcp_io_perf::threading;
 
 fn main() {
 
@@ -47,9 +26,10 @@ fn main() {
     let mut connected = false;
 
     while !connected {
-        match TcpStream::connect(args.address_and_port()) {
+        match connection::client_connect(args.address_and_port()) {
             Ok(mut stream) => {
                 connection::setup(&args, &mut stream);
+                threading::setup(&args);
                 connected = true;
                 let mut hist = streaming_harness_hdrhist::HDRHist::new();
 
@@ -70,11 +50,8 @@ fn main() {
                         println!("{}% completed", i / progress_tracking_percentage);
                     }
                 }
-
-                stream.shutdown(Shutdown::Both).expect("shutdown call failed");
-
-                // Format output nicely
-                print_summary(hist);
+                connection::close_connection(&stream);
+                print_utils::print_summary(hist);
             },
             Err(error) => {
                 println!("Couldn't connect to server, retrying... Error {}", error);

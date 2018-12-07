@@ -1,0 +1,30 @@
+[package]
+
+name = "rust-tcp-io-perf"
+version = "0.0.0"
+authors = ["Lorenzo Martini <lmartini@student.ethz.ch>"]
+readme = "README.md"
+
+description = "A Rust program to measure bandwidth or latency over a Rust TCP connection"
+
+[dependencies]
+bytes = "*"
+clap = "2"
+core_affinity = "0.5.9"
+streaming-harness-hdrhist = { git = "https://github.com/utaal/hdrhist-rust" }
+
+[[bin]]
+name = "server-bw"
+path = "src/rust-tcp-bw/server.rs"
+
+[[bin]]
+name = "client-bw"
+path = "src/rust-tcp-bw/client.rs"
+
+[[bin]]
+name = "server-lat"
+path = "src/rust-tcp-latency/server.rs"
+
+[[bin]]
+name = "client-lat"
+path = "src/rust-tcp-latency/client.rs"

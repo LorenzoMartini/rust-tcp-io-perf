@@ -1,9 +1,9 @@
 extern crate bytes;
-extern crate rust_tcp_bw;
+extern crate rust_tcp_io_perf;
 
-use std::net::{Shutdown, TcpStream};
+use rust_tcp_io_perf::connection;
 use std::io::Write;
-use rust_tcp_bw::config;
+use rust_tcp_io_perf::config;
 
 fn main() {
 
@@ -13,7 +13,7 @@ fn main() {
     let n_rounds = args.n_rounds;
     let n_bytes = args.n_kbytes * 1000;
 
-    if let Ok(mut stream) = TcpStream::connect(args.address_and_port()) {
+    if let Ok(mut stream) = connection::client_connect(args.address_and_port()) {
         println!("Connection established! Ready to send...");
 
         // Create a buffer of 0s, size n_bytes, to be sent over multiple times
@@ -31,7 +31,7 @@ fn main() {
         }
         println!("Sent everything!");
 
-        stream.shutdown(Shutdown::Both).expect("shutdown call failed");
+        connection::close_connection(&stream);
     } else {
         println!("Couldn't connect to server...");
     }
