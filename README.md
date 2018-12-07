@@ -18,7 +18,7 @@ We run a server and a client at the two ends of the channel, and start sending d
 
 ## Instructions
 
-For both programs, you can run them the same way. We will use `rust-tcp-bw` as example. To run `rust-tcp-latency` just replace `rust-tcp-bw` with `rust-tcp-latency` whenever it appears in the instructions.
+For both programs, you can run them the same way. We will use `bw` as example. To run `latency` just replace `bw` with `latency` whenever it appears in the instructions.
 
 ### Running .rs directly
 
@@ -30,23 +30,23 @@ For both programs, you can run them the same way. We will use `rust-tcp-bw` as e
 1) Run server
 - Go on the machine where you wanna launch the server (or ssh into it)
 - Open a terminal
-- `cd` into the inner `rust-tcp-bw` folder
-- Run `cargo run --bin server --release` (or compile and run, meaning `cargo build --bin server --release` and once compiled `./target/release/server`). You can specify the port you wanna listen on with `-p <port_number>`.
+- `cd` into the inner `code` folder
+- Run `cargo run --bin server-bw --release` (or compile and run, meaning `cargo build --bin server-bw --release` and once compiled `./target/release/server-bw`). You can specify the port you wanna listen on with `-p <port_number>`.
 
 2) Run client
 - Go on the machine where you wanna launch the client (or ssh into it)
 - Open a terminal
-- `cd` into the inner `rust-tcp-bw` folder
-- Run `cargo run --bin client --release` (or compile and run, meaning `cargo build --bin client --release` and once compiled `./target/release/client`). You can specify a bunch of parameters. Run the program with the `-h` option to see available params. Make sure you specify the right address and port to connect to the server, using parameters `-a <address> -p <port>`.
+- `cd` into the inner `code` folder
+- Run `cargo run --bin client-bw --release` (or compile and run, meaning `cargo build --bin client-bw --release` and once compiled `./target/release/client-bw`). You can specify a bunch of parameters. Run the program with the `-h` option to see available params. Make sure you specify the right address and port to connect to the server, using parameters `-a <address> -p <port>`.
 
-You should see the client tracking progress, and when he's done you should see the server printing all the rounds of data in format `[n_bytes,time,time_us]`, followed by a summary with the bandwidth information.
+You should see the client tracking progress, and when he's done you should see the server printing a visual distribution of data, followed by a summary with the bandwidth information.
 
 If you want to test the two-way communication, then setup 2 servers and then run the 2 clients together.
 
 ### Running via scripts
 
 I have provided scripts to run the benchmarks automatically, <strong>runner.py</strong> and <strong>runner_bidirectional.py</strong>.
-For these scripts you will need to edit the configuration file. Change values in `config_bw.config` (or `config_latency.config`), or create a config file in the same format with the same keys and change values. You can specify the program to test (whether `rust-tcp-bw` or `rust-tcp-latency`) in your config file.
+For these scripts you will need to edit the configuration file. Change values in `config_bw.config` (or `config_latency.config`), or create a config file in the same format with the same keys and change values. You can specify the program to test (whether `bw` or `latency`) in your config file.
 
 The config file is important because it will contain a bunch of things like machines names, ssh keys, username to use for the ssh, that will be necessary to run your programs.
 
@@ -80,7 +80,7 @@ There is an additional runnable tool which is <string>plotter.py</strong>. It ta
 - `python plotter.py <file_with_server.rs_output>`
 
 Get the file you need by simply redirecting to a file the output of:
-- `server.rs` for `rust-tcp-bw`
-- `client.rs` for `rust-tcp-latency`
+- `server.rs` for `bw`
+- `client.rs` for `latency`
 
 Alternatively, run you `runner.py` scripts normally, but change the config value of PLOT to `PLOT=1`
