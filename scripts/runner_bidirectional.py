@@ -67,8 +67,11 @@ def run(server_address, client_address, server_address_alias, client_address_ali
 
 
 def main():
-    if runner.CONFIG['PROGRAM'] != 'rust-tcp-bw':
-        print('This script works only for rust-tcp-bw')
+    if runner.CONFIG['PROGRAM'] != 'bw':
+        print('This script works only for bw')
+        exit(-1)
+    if runner.CONFIG['CLIENT_ADDRESS'] == runner.CONFIG['SERVER_ADDRESS']:
+        print('This script works only if client != server')
         exit(-1)
     run(runner.CONFIG['SERVER_ADDRESS'], runner.CONFIG['CLIENT_ADDRESS'],
         runner.CONFIG['SERVER_ADDRESS_ALIAS'], runner.CONFIG['CLIENT_ADDRESS_ALIAS'])

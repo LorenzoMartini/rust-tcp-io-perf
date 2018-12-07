@@ -8,16 +8,16 @@ import sys
 # It's important to include the appropriate ssh keys to be able to run ssh correctly.
 
 
-CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-io-perf/{} && cargo build --bin server --release'
-CONST_CLIENT_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-io-perf/{} && cargo build --bin client --release'
-CONST_RUN_SERVER = './rust-tcp-io-perf/{}/target/release/server'
-CONST_RUN_CLIENT = './rust-tcp-io-perf/{}/target/release/client'
+CONST_SERVER_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-io-perf/code && cargo build --bin server-{} --release'
+CONST_CLIENT_COMPILE = 'source $HOME/.cargo/env && cd rust-tcp-io-perf/code && cargo build --bin client-{} --release'
+CONST_RUN_SERVER = './rust-tcp-io-perf/code/target/release/server-{}'
+CONST_RUN_CLIENT = './rust-tcp-io-perf/code/target/release/client-{}'
 
 
 # Default configuration
 def default_config():
     return {
-        'PROGRAM': 'rust-tcp-bw',
+        'PROGRAM': 'bw',
         'SERVER_ADDRESS': 'euler01',
         # Aliasing is necessary, the remote machines may see themselves with different addresses
         'SERVER_ADDRESS_ALIAS': 'euler01',
@@ -30,9 +30,9 @@ def default_config():
         'KEY_FILENAME': '/home/lorenzo/.ssh/euler0x-key',
         'NO-DELAY': '1',
         'NON-BLOCKING': '1',
-        'PINNING': '0,1',
-        'PLOT': '0',
-        'VERBOSE': '1'
+        'PINNING_CLIENT': '-1',
+        'PINNING_SERVER': '-1',
+        'PLOT': '0'
     }
 
 
@@ -62,19 +62,20 @@ def parse_command(command):
 # Returns the command to run the client with the specified server.
 # Need the address the client knows of the server to connect.
 def run_client_command(server_address_alias):
-    return parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address_alias + args()
+    return (parse_command(CONST_RUN_CLIENT) + ' -a ' + server_address_alias + args() +
+            (' -t ' + CONFIG['PINNING_CLIENT'] if CONFIG['PINNING_CLIENT'] != '-1' else ''))
 
 
 # Returns the command to run the server
 def run_server_command():
-    return parse_command(CONST_RUN_SERVER) + args()
+    return (parse_command(CONST_RUN_SERVER) + args() +
+            (' -t ' + CONFIG['PINNING_SERVER'] if CONFIG['PINNING_SERVER'] != '-1' else ''))
 
 
 # Pack args in command line
 def args():
     return (' -p ' + CONFIG['PORT'] + ' -k ' + CONFIG['KBYTES'] + ' -r ' + CONFIG['ROUNDS'] +
-            (' -b ' + CONFIG['NON-BLOCKING'] + ' -d ' + CONFIG['NO-DELAY'] + ' -t ' + CONFIG['PINNING'])
-            if CONFIG['PROGRAM'] == 'rust-tcp-latency' else '')
+            ' -b ' + CONFIG['NON-BLOCKING'] + ' -d ' + CONFIG['NO-DELAY'])
 
 
 # Print given stdout iterator and collects results in a list that is returned when the program completes
@@ -84,8 +85,7 @@ def print_and_collect_out(stdout, machine_id=''):
     for line in stdout:
         # This is necessary because for some awkward reason if std is not consumed it gets blocked
         lstrip = line.rstrip('\n')
-        if CONFIG['VERBOSE'] == '1':
-            print(machine_id + ': ...' + lstrip)
+        print(machine_id + ': ...' + lstrip)
         out.append(lstrip)
 
     _ = stdout.channel.recv_exit_status()
