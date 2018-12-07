@@ -62,7 +62,7 @@ pub fn close_connection(stream: &TcpStream) {
 pub fn server_listen_and_get_first_connection(port: &String) -> TcpStream {
     let listener = TcpListener::bind("0.0.0.0:".to_owned() + port).unwrap();
     println!("Server running, listening for connection on 0.0.0.0:{}", port);
-    let mut stream = listener.incoming().next().unwrap().unwrap();
+    let stream = listener.incoming().next().unwrap().unwrap();
     println!("Connection established with {:?}!", stream.peer_addr().unwrap());
     return stream;
 }

@@ -22,9 +22,9 @@ name = "client-bw"
 path = "src/rust-tcp-bw/client.rs"
 
 [[bin]]
-name = "server-lat"
+name = "server-latency"
 path = "src/rust-tcp-latency/server.rs"
 
 [[bin]]
-name = "client-lat"
+name = "client-latency"
 path = "src/rust-tcp-latency/client.rs"
