@@ -8,7 +8,7 @@ use rust_tcp_io_perf::threading;
 fn main() {
 
     let args = config::parse_config();
-    let n_bytes = args.n_kbytes * 1000;
+    let n_bytes = args.n_bytes;
     let n_rounds = args.n_rounds;
     let mut buf = vec![0; n_bytes];
 

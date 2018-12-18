@@ -10,7 +10,7 @@ use std::time::Instant;
 
 fn main() {
     let args = config::parse_config();
-    let n_bytes = args.n_kbytes * 1000;
+    let n_bytes = args.n_bytes;
     let tot_n_bytes = (n_bytes * args.n_rounds) as u64;
 
     let mut buf = vec![0; n_bytes];

@@ -11,7 +11,7 @@ fn main() {
 
     println!("Connecting to the server {}...", args.address);
     let n_rounds = args.n_rounds;
-    let n_bytes = args.n_kbytes * 1000;
+    let n_bytes = args.n_bytes;
 
     if let Ok(mut stream) = connection::client_connect(args.address_and_port()) {
         println!("Connection established! Ready to send...");

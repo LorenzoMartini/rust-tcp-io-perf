@@ -15,7 +15,7 @@ fn main() {
 
     println!("Connecting to the server {}...", args.address);
     let n_rounds = args.n_rounds;
-    let n_bytes = args.n_kbytes * 1000;
+    let n_bytes = args.n_bytes;
 
     // Create buffers to read/write
     let wbuf: Vec<u8> = vec![0; n_bytes];
