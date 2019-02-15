@@ -1,5 +1,7 @@
 extern crate core_affinity;
+extern crate amd64_timer;
 
+use self::amd64_timer::ticks;
 use std::net::TcpStream;
 use std::io::{Read, Write};
 use std::io::ErrorKind::WouldBlock;
@@ -26,18 +28,23 @@ pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) {
 
 /// Reads n_bytes into rbuf from the given stream.
 /// Make sure rbuf.len >= n_bytes
-pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8>) {
+pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8>) -> u64 {
     // Make sure we receive the full buf back
     let mut recv = 0;
+    let mut t0 = ticks();
     while recv < n_bytes {
         match stream.read(&mut rbuf[recv..]) {
             Ok(n) => recv += n,
             Err(err) => match err.kind() {
-                WouldBlock => {}
+                WouldBlock => {
+                    t0 = ticks();
+                }
                 _ => panic!("Error occurred while reading: {:?}", err),
             }
         }
     }
+    let t1 = ticks();
+    t1 - t0
 }
 
 /// Setup the streams and eventually pins the thread according to the configuration.
