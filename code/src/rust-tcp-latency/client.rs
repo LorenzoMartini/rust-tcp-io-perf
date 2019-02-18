@@ -28,6 +28,8 @@ fn main() {
     while !connected {
         match connection::client_connect(args.address_and_port()) {
             Ok(mut stream) => {
+                let mut hist_send = streaming_harness_hdrhist::HDRHist::new();
+                let mut hist_recv = streaming_harness_hdrhist::HDRHist::new();
                 connection::setup(&args, &mut stream);
                 threading::setup(&args);
                 connected = true;
@@ -39,8 +41,9 @@ fn main() {
 
                     let start = Instant::now();
 
-                    connection::send_message(n_bytes, &mut stream, &wbuf);
-                    connection::receive_message(n_bytes, &mut stream, &mut rbuf);
+                    // Make sure n_rounds is the same between client and server
+                    hist_send.add_value(connection::send_message(n_bytes, &mut stream, &wbuf));
+                    hist_recv.add_value(connection::receive_message(n_bytes, &mut stream, &mut rbuf));
 
                     let duration = Instant::now().duration_since(start);
                     hist.add_value(duration.as_secs() * 1_000_000_000u64 + duration.subsec_nanos() as u64);
@@ -52,6 +55,9 @@ fn main() {
                 }
                 connection::close_connection(&stream);
                 print_utils::print_summary(hist);
+                
+                println!("Send\n{}", hist_send.summary_string());
+                println!("Recv\n{}", hist_recv.summary_string());
             },
             Err(error) => {
                 println!("Couldn't connect to server, retrying... Error {}", error);

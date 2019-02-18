@@ -13,17 +13,24 @@ use std::net::TcpListener;
 
 /// Sends first n_bytes from wbuf using the given stream.
 /// Make sure wbuf.len >= n_bytes
-pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) {
+pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) -> u64 {
     let mut send = 0;
+    let mut t0 = ticks();
     while send < n_bytes {
         match stream.write(&wbuf[send..]) {
             Ok(n) => send += n,
             Err(err) => match err.kind() {
-                WouldBlock => {}
+                WouldBlock => {
+                    if send == 0 {
+                        t0 = ticks();
+                    }
+                }
                 _ => panic!("Error occurred while writing: {:?}", err),
             }
         }
     }
+    let t1 = ticks();
+    t1 - t0
 }
 
 /// Reads n_bytes into rbuf from the given stream.

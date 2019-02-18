@@ -16,14 +16,16 @@ fn main() {
     let mut stream = connection::server_listen_and_get_first_connection(&args.port);
     connection::setup(&args, &mut stream);
     threading::setup(&args);
-    
-     let mut hist = streaming_harness_hdrhist::HDRHist::new();
+
+    let mut hist_send = streaming_harness_hdrhist::HDRHist::new();
+    let mut hist_recv = streaming_harness_hdrhist::HDRHist::new();
     // Make sure n_rounds is the same between client and server
     for _i in 0..n_rounds {
-        hist.add_value(connection::receive_message(n_bytes, &mut stream, &mut buf));
-        connection::send_message(n_bytes, &mut stream, &buf);
+        hist_recv.add_value(connection::receive_message(n_bytes, &mut stream, &mut buf));
+        hist_send.add_value(connection::send_message(n_bytes, &mut stream, &buf));
     }
 
     println!("Done exchanging stuff");
-    println!("{:?}", hist.summary_string());
+    println!("Send\n{}", hist_send.summary_string());
+    println!("Recv\n{}", hist_recv.summary_string());
 }
