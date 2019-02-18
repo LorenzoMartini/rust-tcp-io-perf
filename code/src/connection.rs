@@ -37,7 +37,9 @@ pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8
             Ok(n) => recv += n,
             Err(err) => match err.kind() {
                 WouldBlock => {
-                    t0 = ticks();
+                    if recv == 0 {
+                        t0 = ticks();
+                    }
                 }
                 _ => panic!("Error occurred while reading: {:?}", err),
             }
