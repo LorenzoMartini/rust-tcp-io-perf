@@ -5,6 +5,7 @@ extern crate streaming_harness_hdrhist;
 use rust_tcp_io_perf::config;
 use rust_tcp_io_perf::connection;
 use rust_tcp_io_perf::threading;
+use rust_tcp_io_perf::print_utils;
 
 fn main() {
 
