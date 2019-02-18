@@ -55,9 +55,10 @@ fn main() {
                 }
                 connection::close_connection(&stream);
                 print_utils::print_summary(hist);
-                
-                println!("Send\n{}", hist_send.summary_string());
-                println!("Recv\n{}", hist_recv.summary_string());
+                println!("Send\n");
+                print_utils::print_summary(hist_send);
+                println!("Recv\n");
+                print_utils::print_summary(hist_recv);
             },
             Err(error) => {
                 println!("Couldn't connect to server, retrying... Error {}", error);

@@ -26,6 +26,8 @@ fn main() {
     }
 
     println!("Done exchanging stuff");
-    println!("Send\n{}", hist_send.summary_string());
-    println!("Recv\n{}", hist_recv.summary_string());
+    println!("Send\n");
+    print_utils::print_summary(hist_send);
+    println!("Recv\n");
+    print_utils::print_summary(hist_recv);
 }
