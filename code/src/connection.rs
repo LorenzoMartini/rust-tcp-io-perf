@@ -15,22 +15,21 @@ use std::net::TcpListener;
 /// Make sure wbuf.len >= n_bytes
 pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) -> u64 {
     let mut send = 0;
+    let mut count = 0;
     let mut t0 = ticks();
     while send < n_bytes {
         match stream.write(&wbuf[send..]) {
-            Ok(n) => send += n,
+            Ok(n) => {
+                send += n;
+                count += 1;
+            },
             Err(err) => match err.kind() {
-                WouldBlock => {
-                    if send == 0 {
-                        t0 = ticks();
-                    }
-                }
+                WouldBlock => {}
                 _ => panic!("Error occurred while writing: {:?}", err),
             }
         }
     }
-    let t1 = ticks();
-    t1 - t0
+    count
 }
 
 /// Reads n_bytes into rbuf from the given stream.
@@ -38,22 +37,21 @@ pub fn send_message(n_bytes: usize, stream: &mut TcpStream, wbuf: &Vec<u8>) -> u
 pub fn receive_message(n_bytes: usize, stream: &mut TcpStream, rbuf: &mut Vec<u8>) -> u64 {
     // Make sure we receive the full buf back
     let mut recv = 0;
+    let mut count = 0;
     let mut t0 = ticks();
     while recv < n_bytes {
         match stream.read(&mut rbuf[recv..]) {
-            Ok(n) => recv += n,
+            Ok(n) => {
+                recv += n;
+                count += 1;
+            },
             Err(err) => match err.kind() {
-                WouldBlock => {
-                    if recv == 0 {
-                        t0 = ticks();
-                    }
-                }
+                WouldBlock => {}
                 _ => panic!("Error occurred while reading: {:?}", err),
             }
         }
     }
-    let t1 = ticks();
-    t1 - t0
+    count
 }
 
 /// Setup the streams and eventually pins the thread according to the configuration.

@@ -1,6 +1,5 @@
 extern crate bytes;
 extern crate rust_tcp_io_perf;
-extern crate streaming_harness_hdrhist;
 
 use rust_tcp_io_perf::config;
 use rust_tcp_io_perf::connection;
@@ -18,17 +17,17 @@ fn main() {
     connection::setup(&args, &mut stream);
     threading::setup(&args);
 
-    let mut hist_send = streaming_harness_hdrhist::HDRHist::new();
-    let mut hist_recv = streaming_harness_hdrhist::HDRHist::new();
     // Make sure n_rounds is the same between client and server
     for _i in 0..n_rounds {
-        hist_recv.add_value(connection::receive_message(n_bytes, &mut stream, &mut buf));
-        hist_send.add_value(connection::send_message(n_bytes, &mut stream, &buf));
+        let send = connection::receive_message(n_bytes, &mut stream, &mut buf);
+        let recv = connection::send_message(n_bytes, &mut stream, &buf);
+        if send != 1 {
+            println!("Send {}", send);
+        }
+        if recv != 1 {
+            println!("Recv {}", recv);
+        }
     }
 
     println!("Done exchanging stuff");
-    println!("Send\n");
-    print_utils::print_summary(hist_send);
-    println!("Recv\n");
-    print_utils::print_summary(hist_recv);
 }
