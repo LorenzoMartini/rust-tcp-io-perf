@@ -1,13 +1,14 @@
 extern crate bytes;
 extern crate rust_tcp_io_perf;
 extern crate hdrhist;
+extern crate amd64_timer;
 
-use std::time::Instant;
 use std::{thread, time};
 use rust_tcp_io_perf::config;
 use rust_tcp_io_perf::connection;
 use rust_tcp_io_perf::print_utils;
 use rust_tcp_io_perf::threading;
+use amd64_timer::ticks;
 
 fn main() {
 
@@ -32,20 +33,25 @@ fn main() {
                 threading::setup(&args);
                 connected = true;
                 let mut hist = hdrhist::HDRHist::new();
+                let mut hist_read = hdrhist::HDRHist::new();
+                let mut hist_write = hdrhist::HDRHist::new();
 
                 println!("Connection established! Ready to send...");
 
                 // To avoid TCP slowstart we do double iterations and measure only the second half
                 for i in 0..(n_rounds * 2) {
 
-                    let start = Instant::now();
+                    let t0 = ticks();
 
-                    connection::send_message(n_bytes, &mut stream, &wbuf);
-                    connection::receive_message(n_bytes, &mut stream, &mut rbuf);
+                    let write_duration = connection::send_message(n_bytes, &mut stream, &wbuf);
+                    let read_duration = connection::receive_message(n_bytes, &mut stream, &mut rbuf);
 
-                    let duration = Instant::now().duration_since(start);
+                    let t1 = ticks();
+
                     if i >= n_rounds {
-                        hist.add_value(duration.as_secs() * 1_000_000_000u64 + duration.subsec_nanos() as u64);
+                        hist.add_value(t1 - t0);
+                        hist_read.add_value(read_duration);
+                        hist_write.add_value(write_duration);
                     }
 
                     if i % progress_tracking_percentage == 0 {
@@ -55,6 +61,10 @@ fn main() {
                 }
                 connection::close_connection(&stream);
                 print_utils::print_summary(hist);
+                println!("\n--- WRITE ---");
+                print_utils::print_summary(hist_write);
+                println!("\n--- READ ---");
+                print_utils::print_summary(hist_read);
             },
             Err(error) => {
                 println!("Couldn't connect to server, retrying... Error {}", error);

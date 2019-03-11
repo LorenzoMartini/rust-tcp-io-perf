@@ -12,6 +12,7 @@ bytes = "*"
 clap = "2"
 core_affinity = "0.5.9"
 hdrhist = "^0.5.0"
+amd64_timer = { git = "https://github.com/valarauca/amd64_timer" }
 
 [[bin]]
 name = "server-bw"

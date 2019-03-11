@@ -7,9 +7,7 @@ fn print_line() {
 
 /// Nicely outputs summary of execution with stats and CDF points.
 pub fn print_summary(hist: hdrhist::HDRHist) {
-    println!("Sent/received everything!");
-    print_line();
-    println!("HDRHIST summary, measure in ns");
+    println!("HDRHIST summary, measure in CPU cycles");
     print_line();
     println!("summary:\n{:#?}", hist.summary().collect::<Vec<_>>());
     print_line();
