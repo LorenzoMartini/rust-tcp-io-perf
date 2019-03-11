@@ -1,6 +1,6 @@
 extern crate bytes;
 extern crate rust_tcp_io_perf;
-extern crate streaming_harness_hdrhist;
+extern crate hdrhist;
 
 use std::time::Instant;
 use std::{thread, time};
@@ -31,7 +31,7 @@ fn main() {
                 connection::setup(&args, &mut stream);
                 threading::setup(&args);
                 connected = true;
-                let mut hist = streaming_harness_hdrhist::HDRHist::new();
+                let mut hist = hdrhist::HDRHist::new();
 
                 println!("Connection established! Ready to send...");
 

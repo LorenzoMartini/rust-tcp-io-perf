@@ -11,7 +11,7 @@ description = "A Rust program to measure bandwidth or latency over a Rust TCP co
 bytes = "*"
 clap = "2"
 core_affinity = "0.5.9"
-streaming-harness-hdrhist = { git = "https://github.com/utaal/hdrhist-rust" }
+hdrhist = "^0.5.0"
 
 [[bin]]
 name = "server-bw"

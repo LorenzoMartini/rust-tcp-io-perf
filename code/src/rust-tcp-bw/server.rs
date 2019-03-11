@@ -1,6 +1,6 @@
 extern crate bytes;
 extern crate rust_tcp_io_perf;
-extern crate streaming_harness_hdrhist;
+extern crate hdrhist;
 
 use rust_tcp_io_perf::connection;
 use rust_tcp_io_perf::config;
@@ -15,7 +15,7 @@ fn main() {
 
     let mut buf = vec![0; n_bytes];
     let mut active = true;
-    let mut hist = streaming_harness_hdrhist::HDRHist::new();
+    let mut hist = hdrhist::HDRHist::new();
     let mut tot_bytes: u64 = 0;
     let mut tot_bytes_stable: u64 = 0;
     let mut tot_time_stable: u64 = 0;
