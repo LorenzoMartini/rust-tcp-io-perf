@@ -17,7 +17,7 @@ fn main() {
     threading::setup(&args);
 
     // Make sure n_rounds is the same between client and server
-    for _i in 0..n_rounds {
+    for _i in 0..(n_rounds * 2) {
         connection::receive_message(n_bytes, &mut stream, &mut buf);
         connection::send_message(n_bytes, &mut stream, &buf);
     }
